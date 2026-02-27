@@ -46,5 +46,5 @@ venv/
 
 # Generated outputs
 outputs/gallery/
-# outputs/samples/*.json
-# outputs/figures/*.png
+outputs/samples/*.json
+outputs/figures/*.png
