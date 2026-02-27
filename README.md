@@ -1,6 +1,7 @@
 # IE7615 Generative Project — Image Captioning with CLIP + GPT-2
 
 **Course:** IE7615 Neural Networks/Deep Learning SEC 02, Spring 2026
+
 **Group 8:** Quoc Hung Le, Khoa Tran, Hassan Alfareed
 
 ## Overview
@@ -81,10 +82,10 @@ Three fine-tuning strategies compared across 300 test images with 5 reference ca
 
 | Milestone | Deliverables | Status |
 |---|---|---|
-| M1 — Data Pipeline | Flickr30k, CLIP embeddings, GPT-2 tokenization, 5 sample runs | ✅ Complete |
-| M2 — Model Training | Prefix conditioning, frozen + FT training, 3 decoding strategies | ✅ Complete |
-| M3 — Evaluation | BLEU/METEOR/CIDEr/ROUGE-L, temp/beam sweeps, LoRA, radar chart | ✅ Complete |
-| M4 — Final | Caption gallery, demo, ethical reflection, final report | ✅ Complete |
+| M1 — Data Pipeline | Flickr30k, CLIP embeddings, GPT-2 tokenization, 5 sample runs | Complete |
+| M2 — Model Training | Prefix conditioning, frozen + FT training, 3 decoding strategies | Complete |
+| M3 — Evaluation | BLEU/METEOR/CIDEr/ROUGE-L, temp/beam sweeps, LoRA, radar chart | Complete |
+| M4 — Final | Caption gallery, demo, ethical reflection, final report | Complete |
 
 ## Key Findings
 
