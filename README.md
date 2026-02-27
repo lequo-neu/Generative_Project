@@ -1,6 +1,7 @@
 # IE7615 Generative Project — Image Captioning with CLIP + GPT-2
 
 **Course:** IE7615 Neural Networks/Deep Learning SEC 02, Spring 2026
+
 **Group 8:** Quoc Hung Le, Khoa Tran, Hassan Alfareed
 
 ## Overview
@@ -15,13 +16,13 @@ The pipeline: Image (224x224) passes through frozen CLIP to produce a 512-d embe
 
 ## Sample Results
 
-![Sample Runs](assets/sample_runs.png)
+![Sample Runs](outputs/samples/milestone1_sample_runs.png)
 
 *Five test images with ground-truth captions, CLIP embeddings, and GPT-2 tokenization (M1 pipeline validation).*
 
 ## Training
 
-![Training Curves](assets/training_curves.png)
+![Training Curves](outputs/figures/m2_training_curves.png)
 
 *Phase 1: ProjectionHead training with frozen GPT-2 (7 epochs, early-stopped at 4, val_loss=2.9193).*
 
@@ -37,17 +38,17 @@ Three fine-tuning strategies compared across 300 test images with 5 reference ca
 
 *All metrics use beam search (w=5). LoRA achieves best CIDEr with only +0.8M extra parameters.*
 
-![Three Model Comparison](assets/three_model_comparison.png)
+![Three Model Comparison](outputs/figures/m3_three_model_comparison.png)
 
 ## Strategy Profiles
 
-![Radar Chart](assets/radar_chart.png)
+![Radar Chart](outputs/figures/m3_radar_frozen.png)
 
 *Beam search dominates accuracy (BLEU-4, METEOR, CIDEr, ROUGE-L). Nucleus sampling dominates diversity (Distinct-2). No single strategy wins all axes.*
 
 ## Failure Analysis
 
-![Failure Analysis](assets/failure_analysis.png)
+![Failure Analysis](outputs/figures/m4_failure_analysis.png)
 
 | Type | Count | Description |
 |---|---|---|
