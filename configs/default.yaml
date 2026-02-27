@@ -1,0 +1,42 @@
+project:
+  name: "IE7615 Image Captioning"
+  group: 8
+  members:
+    - "Quoc Hung Le"
+    - "Khoa Tran"
+    - "Hassan Alfareed"
+
+paths:
+  project_root: "~/Documents/GitHub/Python/VESKL/11.DAE/NEU/NEU_IE7615/Prj/Generative"
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  embeddings: "data/embeddings"
+  outputs: "outputs"
+
+dataset:
+  name: "flickr30k"
+  hf_id: "nlphuji/flickr30k"
+  subset_size: 3000
+  val_ratio: 0.1
+  test_ratio: 0.1
+  min_caption_length: 8
+  max_caption_length: 60
+
+clip:
+  model_name: "openai/clip-vit-base-patch32"
+  embedding_dim: 512
+
+gpt2:
+  model_name: "gpt2"
+  embedding_dim: 768
+  max_token_length: 50
+
+training:
+  learning_rate: 5.0e-4
+  batch_size: 16
+  epochs: 20
+  warmup_steps: 200
+  prefix_length: 10
+  weight_decay: 0.01
+
+seed: 42

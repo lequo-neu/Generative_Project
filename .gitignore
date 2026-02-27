@@ -1,0 +1,50 @@
+# Data
+data/raw/
+data/embeddings/*.pt
+
+# Model checkpoints
+outputs/checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+*.env
+.conda/
+venv/
+
+# Large files
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# Reports (submit separately)
+*.docx
+*.pdf
+
+# Generated outputs
+outputs/gallery/
+# outputs/samples/*.json
+# outputs/figures/*.png
