@@ -42,9 +42,9 @@ venv/
 
 # Reports (submit separately)
 *.docx
-*.pdf
+#.pdf
 
 # Generated outputs
-outputs/gallery/
-outputs/samples/*.json
-outputs/figures/*.png
+#outputs/gallery/
+#outputs/samples/*.json
+#outputs/figures/*.png

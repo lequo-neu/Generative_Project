@@ -1,0 +1,371 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{url}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{Image-to-Text Generation Using CLIP Vision Encoders\\
+and GPT-2 Language Decoders}
+
+\author{
+\IEEEauthorblockN{Quoc Hung Le}
+\IEEEauthorblockA{\textit{College of Engineering}\\
+\textit{Northeastern University}\\
+Boston, MA, USA\\
+le.quo@northeastern.edu}
+\and
+\IEEEauthorblockN{Khoa Tran}
+\IEEEauthorblockA{\textit{College of Engineering}\\
+\textit{Northeastern University}\\
+Boston, MA, USA\\
+tran.khoa@northeastern.edu}
+\and
+\IEEEauthorblockN{Hassan Alfareed}
+\IEEEauthorblockA{\textit{College of Engineering}\\
+\textit{Northeastern University}\\
+Boston, MA, USA\\
+alfareed.h@northeastern.edu}
+}
+
+\maketitle
+
+\begin{abstract}
+We present an image captioning pipeline that integrates a frozen CLIP ViT-B/32 vision encoder with a GPT-2 language decoder via prefix conditioning. A two-layer projection network maps 512-dimensional CLIP embeddings into 10 prefix tokens in GPT-2's embedding space, enabling visually-grounded autoregressive caption generation without joint pretraining. We train and compare three fine-tuning strategies---Frozen ProjectionHead, 4-Layer Fine-Tuning (FT-4L), and Low-Rank Adaptation (LoRA, $r=8$)---on COCO Captions 2017 (118,287 images) and evaluate on 500 held-out COCO val2017 images. Our best configuration achieves CIDEr~0.9364, BLEU-4~0.2917, METEOR~0.4738, and ROUGE-L~0.5368. Notably, the Frozen variant with beam search achieves identical CIDEr~0.9364 to FT-4L, demonstrating that the projection network alone provides sufficient visual conditioning at COCO scale. We further analyze parameter sensitivity through beam width and temperature sweeps, and deploy an interactive inference dashboard for real-time evaluation.
+\end{abstract}
+
+\begin{IEEEkeywords}
+image captioning, CLIP, GPT-2, prefix conditioning, LoRA, fine-tuning, beam search
+\end{IEEEkeywords}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Introduction}
+
+Image captioning requires a system to produce a fluent, accurate natural-language description of an input image. The task spans computer vision and natural language processing and has practical value in accessibility technology, automated content indexing, and multimedia retrieval.
+
+Modern captioning systems follow the encoder-decoder paradigm: a vision encoder extracts visual features, and a language decoder generates the caption \cite{vinyals2015show, xu2015show, anderson2018bottom}. The central challenge is bridging the representational gap between visual embeddings and the token space of a pretrained language model. Prior work addresses this through joint pretraining \cite{li2020oscar, zhou2020unified}, cross-attention conditioning \cite{alayrac2022flamingo}, or contrastive embedding alignment \cite{radford2021learning}. These approaches generally require substantial compute and large-scale paired data.
+
+We adopt the prefix conditioning approach of ClipCap \cite{mokady2021clipcap}, in which a small mapping network converts CLIP embeddings into learned prefix tokens that are prepended to GPT-2's input. Our contribution is a systematic study of three fine-tuning strategies applied to this architecture on the full COCO 2017 training set, paired with decoding hyperparameter sensitivity analysis and an interactive inference demo.
+
+Our main contributions are:
+\begin{itemize}
+\item A CLIP+GPT-2 prefix conditioning pipeline evaluated against three fine-tuning strategies and three decoding strategies across five captioning metrics.
+\item An empirical finding that the Frozen variant (0.6M trainable parameters) matches FT-4L (67M trainable parameters) on CIDEr at COCO scale.
+\item A beam width and temperature sensitivity analysis showing that $w=5$ and $t=0.3$ are optimal for COCO, with beam width optimum varying across datasets.
+\item An interactive web dashboard for real-time captioning with configurable models, decoding strategies, and reference-free quality metrics.
+\end{itemize}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Related Work}
+
+\subsection{Vision-Language Pretraining}
+
+Oscar \cite{li2020oscar} aligns image regions and language tokens using object tags as anchors. VLP \cite{zhou2020unified} employs a unified transformer pretrained on Conceptual Captions \cite{sharma2018conceptual}. Flamingo \cite{alayrac2022flamingo} and GIT \cite{wang2022git} show that scaling to billions of image-text pairs yields strong zero-shot and few-shot captioning, but at significant compute cost.
+
+\subsection{CLIP as a Visual Backbone}
+
+CLIP \cite{radford2021learning} was trained on 400 million image-text pairs with a contrastive objective, producing 512-dimensional embeddings that align visual and textual representations. These embeddings serve as effective conditioning signals for downstream generative tasks \cite{mokady2021clipcap}, reducing the need for task-specific visual pretraining.
+
+\subsection{Prefix Conditioning}
+
+Prefix-tuning \cite{li2021prefix} prepends learned tokens to a frozen language model to steer its generation. ClipCap \cite{mokady2021clipcap} applies this idea to captioning by mapping CLIP embeddings to $k$ prefix tokens fed to GPT-2. Our work extends this by systematically comparing three fine-tuning strategies on 118K COCO images.
+
+\subsection{Parameter-Efficient Fine-Tuning}
+
+LoRA \cite{hu2022lora} injects rank-decomposition matrices $\Delta W = BA$ (with $B \in \mathbb{R}^{d \times r}$, $A \in \mathbb{R}^{r \times k}$, $r \ll \min(d,k)$) into attention layers, enabling effective adaptation with far fewer trainable parameters than full fine-tuning. We apply LoRA with $r=8$, $\alpha=16$ via the PEFT library.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Methodology}
+
+\subsection{Problem Formulation}
+
+Given paired images and captions $\{x_i, c_i\}_{i=1}^N$, we learn a model that generates accurate captions for unseen images. Following \cite{mokady2021clipcap}, we treat visual features as a prefix and optimize:
+
+\begin{equation}
+\max_\theta \sum_{i=1}^N \sum_{j=1}^\ell \log p_\theta\!\left(c_j^i \mid p_1^i, \ldots, p_k^i,\, c_1^i, \ldots, c_{j-1}^i\right)
+\end{equation}
+
+where $p_1^i, \ldots, p_k^i$ are visual prefix tokens from image $x^i$ and $\ell=50$ is the maximum caption length.
+
+\subsection{Dataset}
+
+We use COCO Captions 2017 \cite{chen2015microsoft, lin2014microsoft}: 118,287 training images with 5 captions each (591,435 total). Images are resized and center-cropped to $224 \times 224$ following CLIP's preprocessing. CLIP embeddings are cached after pre-computation to avoid redundant forward passes across training phases. Evaluation uses 500 held-out COCO val2017 images with fresh embeddings. Each evaluation image has 5 reference captions.
+
+\subsection{Architecture}
+
+The pipeline maps an image to a caption as:
+\begin{equation}
+\hat{c} = \text{GPT-2}\!\left(F\!\left(\text{CLIP}(x)\right) \oplus \text{Tokenize}(c)\right)
+\end{equation}
+
+where $F$ is the ProjectionHead and $\oplus$ denotes sequence concatenation.
+
+\textbf{ProjectionHead.} A two-layer MLP maps the 512-d CLIP embedding to 10 prefix tokens of 768 dimensions each (matching GPT-2's hidden size):
+
+\begin{equation}
+F(e) = \text{Reshape}_{10 \times 768}\!\left(\text{LN}\!\left(W_2\,\text{GELU}(W_1 e + b_1) + b_2\right)\right)
+\end{equation}
+
+with $W_1 \in \mathbb{R}^{7680 \times 512}$, $W_2 \in \mathbb{R}^{7680 \times 7680}$, Dropout($p=0.1$) after the first linear layer, and LayerNorm (LN) at the output. Total parameters: $\sim$0.6M.
+
+\textbf{Language decoder.} GPT-2 \cite{radford2019language} (117M parameters) receives prefix tokens concatenated with caption embeddings. During training, cross-entropy loss applies only to caption positions; prefix positions are masked with label $-100$. At inference, prefix tokens are passed as \texttt{inputs\_embeds} to GPT-2's \texttt{generate()}.
+
+\subsection{Fine-Tuning Strategies}
+
+\textbf{Frozen}: Only the ProjectionHead (0.6M) is trained; GPT-2 is fixed. Tests whether CLIP embeddings alone suffice.
+
+\textbf{FT-4L}: ProjectionHead plus the last 4 GPT-2 transformer blocks are fine-tuned (67.6M trainable of 129.9M total). Provides greater language model adaptability.
+
+\textbf{LoRA} ($r=8$, $\alpha=16$): Rank-8 adapters applied to attention $q$-proj and $v$-proj layers via PEFT \cite{hu2022lora}. Scaling factor $\alpha/r = 2.0$. Only 0.8M additional parameters (63.7M total).
+
+\subsection{Training}
+
+Training uses an NVIDIA A100 80GB GPU on Google Colab. Each strategy is trained sequentially, initializing from the previous checkpoint. We use AdamW \cite{loshchilov2017decoupled} (weight decay 0.01), learning rates $2\times10^{-4}$ (Phase 1) and $5\times10^{-5}$ (Phases 2--3), batch size 32, gradient clip norm 1.0, 15\% linear warmup, and early stopping (patience 3) on validation loss.
+
+\subsection{Decoding Strategies}
+
+\textbf{Greedy}: argmax selection at each step with repetition penalty 1.5.
+
+\textbf{Beam search}: width $w$, no-repeat ngram size 2, length penalty 1.0.
+
+\textbf{Nucleus sampling} (Top-$p$): samples from tokens with cumulative probability $\leq p=0.9$; temperature $t$ controls sharpness.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Experimental Setup}
+
+\subsection{Evaluation Metrics}
+
+We use four standard captioning metrics on 500 COCO val2017 images:
+\textbf{BLEU-4} \cite{papineni2002bleu}: corpus-level 4-gram precision.
+\textbf{METEOR} \cite{denkowski2014meteor}: unigram F-score with WordNet synonym matching.
+\textbf{CIDEr} \cite{vedantam2015cider}: TF-IDF weighted n-gram consensus; primary COCO metric.
+\textbf{ROUGE-L} \cite{lin2004rouge}: longest common subsequence recall.
+
+\subsection{Implementation}
+
+CLIP and GPT-2 use Hugging Face \texttt{transformers} (v4.36). LoRA uses PEFT (v0.7). Random seed 42 for all experiments. Local inference uses Apple M1 MPS.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Results}
+
+\subsection{Main Evaluation}
+
+Table~\ref{tab:main_results} shows results for all nine configurations on 500 COCO val2017 images.
+
+\begin{table}[t]
+\caption{Evaluation on COCO val2017 (500 Images)}
+\label{tab:main_results}
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llccccc}
+\toprule
+\textbf{Model} & \textbf{Strategy} & \textbf{B-1} & \textbf{B-4} & \textbf{MTR} & \textbf{CIDEr} & \textbf{R-L} \\
+\midrule
+Frozen & Greedy  & 0.671 & 0.259 & 0.438 & 0.876 & 0.540 \\
+Frozen & Beam    & 0.705 & 0.290 & 0.462 & \textbf{0.936} & \textbf{0.555} \\
+Frozen & Nucleus & 0.657 & 0.232 & 0.425 & 0.789 & 0.520 \\
+\midrule
+FT-4L  & Greedy  & 0.718 & 0.288 & 0.465 & 0.900 & 0.543 \\
+FT-4L  & Beam    & 0.704 & \textbf{0.292} & \textbf{0.474} & \textbf{0.936} & 0.537 \\
+FT-4L  & Nucleus & 0.710 & 0.269 & 0.457 & 0.871 & 0.532 \\
+\midrule
+LoRA   & Greedy  & 0.583 & 0.154 & 0.356 & 0.494 & 0.429 \\
+LoRA   & Beam    & 0.583 & 0.184 & 0.370 & 0.556 & 0.441 \\
+LoRA   & Nucleus & 0.534 & 0.114 & 0.327 & 0.362 & 0.388 \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+{\small B-1/B-4: BLEU-1/4; MTR: METEOR; R-L: ROUGE-L. Bold: best per metric.}
+\end{table}
+
+\textbf{Effect of fine-tuning strategy.} Frozen/Beam and FT-4L/Beam achieve identical CIDEr~0.9364. Frozen uses 67M fewer trainable parameters and trains substantially faster. This shows that CLIP embeddings, projected through the MLP, provide sufficient visual conditioning without GPT-2 adaptation. FT-4L leads slightly on METEOR (0.474 vs. 0.462), suggesting that language model adaptation improves reference alignment. LoRA substantially underperforms (CIDEr~0.556), likely because rank-8 adapters over-regularize at 118K-image scale; higher ranks or full attention fine-tuning may be more appropriate.
+
+\textbf{Effect of decoding strategy.} Beam search dominates on all accuracy metrics for all models. The improvement is largest for LoRA (CIDEr beam vs. greedy: +12.5\%; beam vs. nucleus: +53.6\%). Nucleus sampling trades accuracy for lexical diversity, as confirmed below.
+
+\subsection{Comparison with Prior Work}
+
+Table~\ref{tab:comparison} places our results in context. Our models are trained on a different evaluation protocol than published baselines (ours: 500 COCO val images; baselines: Karpathy split), so CIDEr values are not directly comparable. Oscar uses additional object-tag supervision.
+
+\begin{table}[t]
+\caption{Comparison with Published Baselines (COCO)}
+\label{tab:comparison}
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model} & \textbf{B-4} & \textbf{MTR} & \textbf{CIDEr} & \textbf{Params} \\
+\midrule
+BUTD \cite{anderson2018bottom}           & 0.362 & 0.270 & 1.135 & 52M \\
+VLP \cite{zhou2020unified}               & 0.365 & 0.284 & 1.177 & 115M \\
+Oscar \cite{li2020oscar}$^\dagger$       & 0.366 & 0.304 & 1.241 & 135M \\
+ClipCap MLP+tune \cite{mokady2021clipcap}& 0.322 & 0.271 & 1.084 & 156M \\
+ClipCap Transformer \cite{mokady2021clipcap}& 0.335 & 0.275 & 1.131 & 43M \\
+\midrule
+Ours; Frozen/Beam  & 0.290 & 0.462 & 0.936 & 62.9M \\
+Ours; FT-4L/Beam   & 0.292 & 0.474 & 0.936 & 129.9M \\
+Ours; LoRA/Beam    & 0.184 & 0.370 & 0.556 & 63.7M \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+{\small $^\dagger$Oscar uses object-tag supervision. Evaluation protocols differ; see text.}
+\end{table}
+
+\subsection{Sensitivity Analysis}
+
+\textbf{Beam width.} We sweep $w \in \{1,2,3,5,8,10\}$ on 200 val images (LoRA model). CIDEr peaks at $w=5$ (0.6099) and declines at $w=8$ (0.5718) and $w=10$ (0.5684). BLEU-4 follows the same pattern, peaking at $w=5$ (0.1775). This contrasts with $w=8$ being optimal on our earlier Flickr30k experiments, confirming that beam width should be tuned per dataset.
+
+\begin{table}[t]
+\caption{Beam Width Sweep (LoRA, 200 COCO val Images)}
+\label{tab:beam_sweep}
+\centering
+\begin{tabular}{ccc}
+\toprule
+\textbf{Width} & \textbf{CIDEr} & \textbf{BLEU-4} \\
+\midrule
+1  & 0.5109 & 0.1553 \\
+2  & 0.5638 & 0.1690 \\
+3  & 0.5861 & 0.1739 \\
+\textbf{5}  & \textbf{0.6099} & \textbf{0.1775} \\
+8  & 0.5718 & 0.1654 \\
+10 & 0.5684 & 0.1639 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Temperature.} We sweep $t \in \{0.3, 0.5, 0.7, 0.8, 1.0, 1.2\}$ for nucleus sampling on 200 val images (LoRA model). CIDEr decreases monotonically from 0.4639 at $t=0.3$ to 0.0282 at $t=1.2$, while Distinct-2 rises from 0.5523 to 0.9699. For accuracy-critical applications such as accessibility alt-text, $t=0.3$ is recommended. For applications requiring caption diversity, $t=0.5$ offers a reasonable balance (CIDEr~0.375, Distinct-2~0.625).
+
+\begin{table}[t]
+\caption{Temperature Sweep for Nucleus Sampling (LoRA, 200 Images)}
+\label{tab:temp_sweep}
+\centering
+\begin{tabular}{ccc}
+\toprule
+\textbf{Temp} & \textbf{CIDEr} & \textbf{Distinct-2} \\
+\midrule
+\textbf{0.3} & \textbf{0.4639} & 0.5523 \\
+0.5 & 0.3751 & 0.6248 \\
+0.7 & 0.2831 & 0.7053 \\
+0.8 & 0.2290 & 0.7869 \\
+1.0 & 0.0757 & 0.8987 \\
+1.2 & 0.0282 & 0.9699 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Analysis and Discussion}
+\label{sec:discussion}
+
+\subsection{Frozen Matches FT-4L}
+
+The equivalence of Frozen/Beam and FT-4L/Beam on CIDEr is the central finding of this work. We attribute it to two complementary factors. First, CLIP's contrastive pretraining on 400M image-text pairs produces embeddings that are already semantically coherent with English visual descriptions. Second, GPT-2's WebText pretraining provides strong priors for producing fluent, descriptive English. When the ProjectionHead aligns these two spaces, GPT-2 generates captions without further adaptation. This has a practical implication: for resource-constrained deployments, Frozen offers the same CIDEr at roughly one-tenth the trainable parameters.
+
+\subsection{LoRA Underperforms at COCO Scale}
+
+LoRA's rank-$r=8$ constraint limits the number of adaptation directions per attention layer. This regularization prevents overfitting on small datasets but constrains capacity at 118K scale. Higher ranks ($r \geq 32$) or full attention fine-tuning are likely more appropriate for large captioning datasets and warrant future investigation.
+
+\subsection{Prefix Bottleneck}
+
+The fixed 10-token prefix compresses the entire visual scene into $10 \times 768 = 7{,}680$ values. Complex scenes with multiple objects and spatial relationships may exceed this capacity. Cross-attention conditioning \cite{alayrac2022flamingo} allows variable-length visual context and avoids this bottleneck, though it requires joint pretraining and more complex integration.
+
+CLIPScore for our best configurations averages $\approx28$ (out of 100), below the human-threshold of $\approx67$. Prefix conditioning trained with cross-entropy does not directly optimize visual-text alignment, explaining this gap relative to contrastively trained systems.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Ethical Considerations}
+
+\textbf{Dataset bias.} COCO was annotated by English-speaking Mechanical Turk workers, overrepresenting Western, urban scenes and reflecting annotator stereotypes. Models trained on this data may generalize poorly to culturally diverse visual content.
+
+\textbf{Misrepresentation risk.} The pipeline generates confident captions for all inputs, including out-of-distribution images. In accessibility tools (screen reader alt-text), an incorrect caption actively misleads visually impaired users. Production deployment requires confidence estimation and human review workflows.
+
+\textbf{Accessibility value.} When deployed responsibly, captioning can substantially improve digital accessibility for the estimated 253 million visually impaired people globally. Our best model achieves CIDEr~0.936 on common COCO scenes, approaching practical usefulness for assistive technology.
+
+\textbf{Privacy.} Large-scale deployment of automatic scene description could enable surveillance by producing textual logs of camera feeds. Clear governance frameworks and deployment restrictions are necessary.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Conclusion}
+
+We presented a CLIP+GPT-2 prefix conditioning pipeline evaluated across three fine-tuning strategies and three decoding strategies on COCO Captions 2017. The Frozen variant with beam search ($w=5$) achieves CIDEr~0.9364, matching FT-4L at 10\% of the trainable parameters. LoRA underperforms at COCO scale, suggesting that its regularization effect is better suited to smaller datasets. Beam width $w=5$ and nucleus temperature $t=0.3$ are optimal for accuracy-focused COCO generation. Future work should explore cross-attention conditioning, larger CLIP encoders (ViT-L/14), and contrastive objectives to directly optimize visual-text alignment.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section*{Acknowledgment}
+
+The authors thank Prof. Xuemin Jin for guidance throughout the IE~7615 course project. Training was conducted on Google Colab Pro with A100 GPU access.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{thebibliography}{00}
+
+\bibitem{radford2021learning}
+A. Radford, J. W. Kim, C. Hallacy, A. Ramesh, G. Goh, S. Agarwal, G. Sastry, A. Askell, P. Mishkin, J. Clark, et al., ``Learning transferable visual models from natural language supervision,'' in \textit{Proc. ICML}, 2021.
+
+\bibitem{radford2019language}
+A. Radford, J. Wu, R. Child, D. Luan, D. Amodei, and I. Sutskever, ``Language models are unsupervised multitask learners,'' \textit{OpenAI Blog}, vol.~1, no.~8, p.~9, 2019.
+
+\bibitem{mokady2021clipcap}
+R. Mokady, A. Hertz, and A. H. Bermano, ``ClipCap: CLIP prefix for image captioning,'' \textit{arXiv:2111.09734}, 2021.
+
+\bibitem{hu2022lora}
+E. J. Hu, Y. Shen, P. Wallis, Z. Allen-Zhu, Y. Li, S. Wang, L. Wang, and W. Chen, ``LoRA: Low-rank adaptation of large language models,'' in \textit{Proc. ICLR}, 2022.
+
+\bibitem{li2021prefix}
+X. L. Li and P. Liang, ``Prefix-tuning: Optimizing continuous prompts for generation,'' in \textit{Proc. ACL}, 2021.
+
+\bibitem{chen2015microsoft}
+X. Chen, H. Fang, T.-Y. Lin, R. Vedantam, S. Gupta, P. Dollar, and C. L. Zitnick, ``Microsoft COCO captions: Data collection and evaluation server,'' \textit{arXiv:1504.00325}, 2015.
+
+\bibitem{lin2014microsoft}
+T.-Y. Lin, M. Maire, S. Belongie, J. Hays, P. Perona, D. Ramanan, P. Dollar, and C. L. Zitnick, ``Microsoft COCO: Common objects in context,'' in \textit{Proc. ECCV}, 2014.
+
+\bibitem{vinyals2015show}
+O. Vinyals, A. Toshev, S. Bengio, and D. Erhan, ``Show and tell: A neural image caption generator,'' in \textit{Proc. CVPR}, 2015.
+
+\bibitem{xu2015show}
+K. Xu, J. Ba, R. Kiros, K. Cho, A. Courville, R. Salakhutdinov, R. Zemel, and Y. Bengio, ``Show, attend and tell: Neural image caption generation with visual attention,'' in \textit{Proc. ICML}, 2015.
+
+\bibitem{anderson2018bottom}
+P. Anderson, X. He, C. Buehler, D. Teney, M. Johnson, S. Gould, and L. Zhang, ``Bottom-up and top-down attention for image captioning and visual question answering,'' in \textit{Proc. CVPR}, 2018.
+
+\bibitem{li2020oscar}
+X. Li, X. Yin, C. Li, P. Zhang, X. Hu, L. Zhang, L. Wang, H. Hu, L. Dong, F. Wei, et al., ``Oscar: Object-semantics aligned pre-training for vision-language tasks,'' in \textit{Proc. ECCV}, 2020.
+
+\bibitem{zhou2020unified}
+L. Zhou, H. Palangi, L. Zhang, H. Hu, J. Corso, and J. Gao, ``Unified vision-language pre-training for image captioning and VQA,'' in \textit{Proc. AAAI}, 2020.
+
+\bibitem{alayrac2022flamingo}
+J.-B. Alayrac, J. Donahue, P. Luc, A. Miech, I. Barr, Y. Hasson, K. Lenc, A. Mensch, K. Millican, M. Reynolds, et al., ``Flamingo: A visual language model for few-shot learning,'' in \textit{Proc. NeurIPS}, 2022.
+
+\bibitem{wang2022git}
+J. Wang, Z. Yang, X. Hu, L. Li, K. Lin, Z. Gan, Z. Liu, C. Liu, and L. Wang, ``GIT: A generative image-to-text transformer for vision and language,'' \textit{TMLR}, 2022.
+
+\bibitem{papineni2002bleu}
+K. Papineni, S. Roukos, T. Ward, and W.-J. Zhu, ``BLEU: A method for automatic evaluation of machine translation,'' in \textit{Proc. ACL}, 2002.
+
+\bibitem{denkowski2014meteor}
+M. Denkowski and A. Lavie, ``Meteor universal: Language specific translation evaluation for any target language,'' in \textit{Proc. WMT}, 2014.
+
+\bibitem{vedantam2015cider}
+R. Vedantam, C. L. Zitnick, and D. Parikh, ``CIDEr: Consensus-based image description evaluation,'' in \textit{Proc. CVPR}, 2015.
+
+\bibitem{lin2004rouge}
+C.-Y. Lin and F. J. Och, ``Automatic evaluation of machine translation quality using longest common subsequence and skip-bigram statistics,'' in \textit{Proc. ACL}, 2004.
+
+\bibitem{sharma2018conceptual}
+P. Sharma, N. Ding, S. Goodman, and R. Soricut, ``Conceptual captions: A cleaned, hypernymed, image alt-text dataset for automatic image captioning,'' in \textit{Proc. ACL}, 2018.
+
+\bibitem{ramesh2021zero}
+A. Ramesh, M. Pavlov, G. Goh, S. Gray, C. Voss, A. Radford, M. Chen, and I. Sutskever, ``Zero-shot text-to-image generation,'' in \textit{Proc. ICML}, 2021.
+
+\bibitem{loshchilov2017decoupled}
+I. Loshchilov and F. Hutter, ``Decoupled weight decay regularization,'' in \textit{Proc. ICLR}, 2019.
+
+\end{thebibliography}
+
+\end{document}

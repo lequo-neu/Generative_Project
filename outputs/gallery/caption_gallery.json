@@ -3,216 +3,216 @@
     {
       "idx": 125,
       "gt": "a group of people are rock climbing on a rock climbing wall.",
-      "beam": "a group of people are climbing a rock wall. The group is climbing the wall.\n\nhttp://www.bbc.co.uk/news/world-middle-east-1.",
-      "nucleus": "a group of people are climbing a rock face.\n\nhttp://www.youtube.com/watch?v=GqXvkvT6vFZg4\n\n6",
-      "bleu4": 0.3641
+      "beam": "a group of people climbing a rock wall.\n\nhttp://www.bbc.co.uk/news/world-europe/arrivals-tourists-mountain-",
+      "nucleus": "a group of people climbing a rock wall. Some people are climbing a wall.\n\n[22]\n\nhttp://www.bbc.co.uk/news/world-europe",
+      "bleu4": 0.7506
     },
     {
-      "idx": 10,
-      "gt": "a small child is holding a mop next to a washer and dryer.",
-      "beam": "a young boy is playing with a toy gun. The boy is holding the toy gun in his hand.\n\nhttp://www.bbc.co.uk/news/world-europe",
-      "nucleus": "a little boy with a red and white shirt is playing with a toy gun. The toy gun is pointing at him. The boy is holding a toy pistol.\n\nhttp://www.youtube.",
-      "bleu4": 0.2698
+      "idx": 271,
+      "gt": "a man on top of a rock to view the world",
+      "beam": "a man standing on top of a rocky outcropping on a rocky beach.\n\n[img]https://www.washingtonpost.com/wp-dyn/content/article/",
+      "nucleus": "a man on a rock in the middle of the ocean. The person is standing on top of a rock.\n\nImage copyright Getty Images Image caption The man is standing in the water on a rocky",
+      "bleu4": 0.4913
     },
     {
-      "idx": 281,
-      "gt": "the man is wearing a white shirt and sunglasses.",
-      "beam": "a man and a woman are walking on the water. The man is wearing a white shirt and a blue shirt. The woman is wearing an orange shirt.\n\nCopyright by KXAN - All",
-      "nucleus": "a man is walking on a pier. The man is wearing a black shirt and blue jeans. The other man is holding a white towel. The two men are in a black boat. The boat is",
-      "bleu4": 0.2491
+      "idx": 279,
+      "gt": "a group of people wearing floral shirts playing in a band outside.",
+      "beam": "a group of people playing instruments.\n\nhttp://www.bbc.co.uk/news/world-european-musical-concerts-are-coming-to-",
+      "nucleus": "a group of people playing music. They are standing next to a stage.\n\nhttp://www.latimes.com/news/nation/nation-of-americas/article/1",
+      "bleu4": 0.3768
     },
     {
-      "idx": 38,
-      "gt": "a man is holding a stick beside a jumping dog.",
-      "beam": "a man is holding a dog in his arms. The dog is holding the dog in its arms.\n\nhttp://www.youtube.com/watch?v=XJxJxR",
-      "nucleus": "a dog is holding a large white dog and a dog is also holding a small dog. The dog is on top of the dog and the dog is in the air. The dogs are holding the dog",
-      "bleu4": 0.2321
+      "idx": 134,
+      "gt": "two hikers wearing dark clothes rest on a snow covered peak.",
+      "beam": "a couple of people standing on top of a snow covered mountain. The snow is covered with snow.\n\nSource: http://www.skiers.com/news/2015/08/29",
+      "nucleus": "a couple of people skiing on a snowy mountain.\n\n7.9 million people are out on the slopes of the mountain. They are skiing on top of a mountain.",
+      "bleu4": 0.3551
     },
     {
-      "idx": 55,
-      "gt": "a man throwing a garbage man into a dumpster while another man holds the lid.",
-      "beam": "a man is holding a garbage bag in his hand. The bag is filled with garbage.\n\n[00:00:22]EMOTE: *no key*/(monkey (912)) : <",
-      "nucleus": "a man in a gray shirt and shorts holding a garbage bag. He is holding a large plastic bag. The bag is filled with garbage and a man in the other shirt is holding it. The man",
-      "bleu4": 0.2315
+      "idx": 79,
+      "gt": "group of people standing or sitting outside of a cafe.",
+      "beam": "a group of people are sitting at a restaurant. They are talking to each other.\n\nhttp://www.bbc.co.uk/news/world-europe/europe-",
+      "nucleus": "people are standing in a restaurant. They are holding a drink. They look at each other. They say \"hello\" and say \"hi.\" They look back at each another and say, \"hi",
+      "bleu4": 0.3389
     },
     {
-      "idx": 27,
-      "gt": "there are lots of colorful foods that this women seems to be selling.",
-      "beam": "a woman is holding a basket of vegetables in front of a crowd of people.\n\nhttp://www.bbc.co.uk/news/world-european-foods-",
-      "nucleus": "a woman is holding a large, green basket of vegetables. The basket is filled with green vegetables.\n\nhttp://www.youtube.com/watch?v=wz3y_k",
-      "bleu4": 0.2187
+      "idx": 56,
+      "gt": "a crowd of people are standing on a train platform are unconcerned as a train passes them by.",
+      "beam": "a group of people waiting to board a train.\n\nhttp://www.cnn.com/2015/02/11/world/europe/people-are-trying-to",
+      "nucleus": "a group of people are waiting for a train to stop.\n\nThe picture is taken after a man standing next to a woman.\n.\n, a man is standing next and a woman is",
+      "bleu4": 0.3247
     },
     {
-      "idx": 113,
-      "gt": "there is a man wearing construction gear, standing next to a bulldozer that is picking up rubble and debris.",
-      "beam": "a large pile of rubble is on top of a building. The building is surrounded by trees. The pile is covered with debris.\n\n[img]https://www.instagram.com/",
-      "nucleus": "a man is working on a building. The building is covered in concrete. The man is wearing a yellow shirt and blue jeans. He has a large white hat and blue pants. He is holding a",
-      "bleu4": 0.218
+      "idx": 108,
+      "gt": "an old man is talking to a group of people sitting on a bench.",
+      "beam": "a group of people sitting on a bench. Some people are sitting on the bench.\n\n[email protected]\n\nShare this: Twitter\n\nFacebook\n\nReddit\n\nTumblr",
+      "nucleus": "people sitting on benches and talking on a cell phone.\n\nrespectivecam.com\n\nawesome\n\nnewyork\n\nhotel\n\non the street\n\none",
+      "bleu4": 0.2982
     },
     {
-      "idx": 34,
-      "gt": "a mother holds one child and watches as the other stares around.",
-      "beam": "a woman is holding a baby in front of a group of children. The baby is crying.\n\nCopyright by WKRN - All rights reserved (WKRN)",
-      "nucleus": "a woman in a pink dress walks past a group of children who are playing in the street. The woman is wearing a pink shirt. The children are playing on a bench. The child is holding a",
-      "bleu4": 0.2054
+      "idx": 122,
+      "gt": "a man in a yellow vest is smoking and working in a field.",
+      "beam": "a man in a green shirt working in a field. The man in the green shirt is working in the field.\n\n[img]https://www.instagram.com/p/B",
+      "nucleus": "a man in a field working on a yellow frill. The man is holding a yellow hoe.\n\n[+]Enlarge this image toggle caption Courtesy of the artist Courtesy of The Artist",
+      "bleu4": 0.2945
     },
     {
-      "idx": 232,
-      "gt": "two people at cliff side overlooking grand canyon.",
-      "beam": "a man and a woman are standing on the top of a mountain. The man is wearing a backpack and the woman is carrying a backpack.\n\nhttp://www.youtube.com/watch?",
-      "nucleus": "a man and a woman are standing on top of a mountain. The woman is wearing a backpack. The man is wearing the backpack.\n\nCopyright by WKRN - All rights reserved",
-      "bleu4": 0.2039
+      "idx": 192,
+      "gt": "people in blue t-shirts stand in the grass.",
+      "beam": "a group of people standing in a grassy area.\n\nhttp://www.bbc.com/news/world/world-europe/europe-republic-of-euro",
+      "nucleus": "a group of people standing outside a building. They are wearing blue and white hats. They have a group of friends standing around. They look around. The group is standing next to a group that has",
+      "bleu4": 0.2938
     },
     {
-      "idx": 75,
-      "gt": "four friends sit on a grassy hill by a beach, looking at the ocean.",
-      "beam": "a group of people are sitting on a beach in the middle of the ocean. The sun is setting and the sun is shining on the beach. The group is surrounded by a group of young people.",
-      "nucleus": "three people sit on a beach in the middle of the water. They are sitting on a bench. The two people are sitting in the water with their hands up. The woman is sitting on the beach",
-      "bleu4": 0.202
+      "idx": 95,
+      "gt": "a man and a woman sitting near small boats.",
+      "beam": "a man and woman sitting on a pier. The woman is sitting on the pier.\n\nRAW Paste Data\n\nLEIGH SALES, HOST:\n\nA man and a woman are",
+      "nucleus": "a woman and a man sitting on a pier. They are talking on a boat. They look at a boat on the other side of the pier. The woman is talking to a man. The man",
+      "bleu4": 0.2781
     }
   ],
   "partial": [
     {
-      "idx": 11,
-      "gt": "two dogs playing with a tennis ball in the yard.",
-      "beam": "a dog is standing on a grassy field. The dog is sitting on the grass.\n\nhttp://www.washingtonpost.com/news/national-security/wp/2015/",
-      "nucleus": "a dog is climbing over a fence. The dog is holding a bag of sticks. The bag is holding the dog. The camera pans to the dog and the dog is standing in the grass. The",
+      "idx": 22,
+      "gt": "a person stands beside a boat, on a dock, looking out across a lake that reflect trees in the distance.",
+      "beam": "a man sitting on a boat in the water. He is standing in the middle of a lake.\n\n[img]https://www.instagram.com/p/B7J7",
+      "nucleus": "a man standing in a boat with a man on it. He is standing on a boat. The man is wearing a blue shirt and a white tie. He looks at the boat. He does not",
+      "bleu4": 0.049
+    },
+    {
+      "idx": 39,
+      "gt": "a man wearing a hiking backpack is leaning on a wooden pole",
+      "beam": "a man standing on a grassy field with a frisbee in his hand. He is standing on the grass.\n\n[img]http://www.flickr.com/photos/",
+      "nucleus": "a man is flying a frisbee in a field. He is holding a frisk. The man is holding his frisbees.\n\n[img]https://www.flickr.",
+      "bleu4": 0.0486
+    },
+    {
+      "idx": 149,
+      "gt": "a girl with short hair and a white shirt is holding a beer bottle",
+      "beam": "a woman is smiling with a cigarette in her hand. She is holding a cigarette. The cigarette is in her mouth. The woman is holding the cigarette.\n\n[00:40:00]",
+      "nucleus": "a woman is smiling at a bar. The woman is holding a cigarette. The cigarette is on the wall. The person is smiling. The smoker is smiling and laughing. The female is holding the cigarette",
       "bleu4": 0.0484
-    },
-    {
-      "idx": 32,
-      "gt": "a man in an orange shirt dipping his hand into liquid.",
-      "beam": "a man in a white shirt and a blue shirt is working on a pipe. The man in the white shirt is holding the pipe in his hand.\n\n[image via screengrab]",
-      "nucleus": "a man is using a large shovel to remove a hole in the ground. The man is wearing a green shirt and a blue shirt. The shovel is being used to remove the hole. The person is",
-      "bleu4": 0.048
-    },
-    {
-      "idx": 180,
-      "gt": "the guy with shorts and boots on, is sitting on top of a building.",
-      "beam": "a man is sitting on a bench in the middle of the water. The man is wearing a blue shirt and shorts. He is holding a plastic bucket. The bucket is filled with water.",
-      "nucleus": "a man is in a boat on the deck of a boat. The man is standing on the top of the boat and is holding a rope. The boat is in the water. The fisherman is holding",
-      "bleu4": 0.0474
-    },
-    {
-      "idx": 102,
-      "gt": "a boy in the snow riding his bike down the street.",
-      "beam": "a man is riding a bicycle on a snow-covered road. The man is wearing a helmet. The snow is falling on the man's head. The helmet is on.\n\n[email protected",
-      "nucleus": "a man wearing a helmet and riding his bike. The helmet is on and the man is wearing a blue helmet. The man is riding his bicycle. The cyclist is wearing the blue helmet and the cyclist",
-      "bleu4": 0.0473
-    },
-    {
-      "idx": 130,
-      "gt": "a man and his female partner smile for a picture.",
-      "beam": "a man and woman holding hands. The man is holding a glass of water. The woman is holding the glass.\n\nRAW Paste Data\n\nhttp://humansarefree.com/2016/",
-      "nucleus": "a man and woman holding hands. The man is holding a large table and the woman is holding the woman. The woman is wearing a white t-shirt and black pants. The men are holding a",
-      "bleu4": 0.0466
-    },
-    {
-      "idx": 103,
-      "gt": "a group of people preparing some really unusually colored food involving eggs.",
-      "beam": "a group of children are working on a kitchen table. Some of the children are trying to figure out how to make a cake.\n\nhttp://www.youtube.com/watch?v=",
-      "nucleus": "a group of children are preparing a cake for a group of kids. The kids are holding a large, large cake in their hands. The children are trying to figure out how to make it.",
-      "bleu4": 0.0463
-    },
-    {
-      "idx": 3,
-      "gt": "two guys and two girls sitting on the stairs outside of a building.",
-      "beam": "a group of people are sitting on a bench in front of a building. The building is surrounded by a group of children. The children are playing in the background. The group is sitting on the bench",
-      "nucleus": "two young men sit on a bench. One of them is holding a chair. The other is holding his hand. The chair is covered with books. The man is holding the chair in front of him",
-      "bleu4": 0.0462
-    },
-    {
-      "idx": 287,
-      "gt": "one man is sitting on top of a school bus, while another man, wearing a matching shirt, is standing inside.",
-      "beam": "a man in a blue shirt and blue jeans is standing in front of a bus. The bus is in the middle of the street. The man in the blue shirt is holding a sign that reads \"",
-      "nucleus": "a young boy in a blue shirt and blue jeans is sitting on a bench. The boy is wearing a blue hoodie and blue pants. The hoodie is on. The man in the blue shirt",
-      "bleu4": 0.0461
     },
     {
       "idx": 205,
       "gt": "a man saws through a piece of wood to repair a fence.",
-      "beam": "a man is working on a piece of wood. The man is wearing a white shirt and blue jeans. He is holding a wooden pole. The pole is in the middle of the room.",
-      "nucleus": "a man is working on a large wooden table. He is wearing a light blue shirt and a white shirt. He has a large red hat. He sits on the table. The man is wearing light",
-      "bleu4": 0.0456
+      "beam": "a man holding a wooden bench.\n\n[img]https://www.instagram.com/p/B7WJ6XJ7XJ8/[/img]",
+      "nucleus": "a man holding a wooden box in his hand.\n\n[img]http://www.pbs.org/wgbh/wg/images/wgd/images.gif[/",
+      "bleu4": 0.0484
     },
     {
-      "idx": 191,
-      "gt": "this is a black dog splashing in the water.",
-      "beam": "a black and white dog is swimming in the water. The dog is wearing a white shirt and a black hoodie. The black dog is holding a water bottle.\n\n[00:00:",
-      "nucleus": "a black dog is running in the water. The dog is on the ground and is running. The water is clear and the dog is swimming in the sea. The black dog runs into the water and",
-      "bleu4": 0.0454
+      "idx": 237,
+      "gt": "a man stands on wooden supports and surveys damage.",
+      "beam": "a man standing on a wooden bridge. He is standing in the middle of the bridge. The bridge is covered in snow. The snow is falling on top of him.\n\nRated 5 out of",
+      "nucleus": "a man is standing in a wooden structure. He is standing on a bridge with a large wooden ladder. He has a ladder up and a ladder on top of him. The ladder is leaning against the",
+      "bleu4": 0.0482
+    },
+    {
+      "idx": 256,
+      "gt": "a baby plays with food while sitting in a highchair.",
+      "beam": "a baby sitting on a chair eating a bowl of food. The baby is sitting on the chair. The child is eating the bowl. The bowl is filled with food.\n\n[img]http",
+      "nucleus": "a child eating a slice of food. The child is eating the food.\n\nPosted by: jameson on Sunday, November 18, 2016 at 9:57:00 AM\n\nShare",
+      "bleu4": 0.048
+    },
+    {
+      "idx": 176,
+      "gt": "a man plugging in a wire while holding a guitar.",
+      "beam": "two men playing guitar in a room. One of the men is holding a guitar and the other is playing a guitar. The man is holding the guitar while the woman is playing. The woman is holding",
+      "nucleus": "a group of men playing guitar while playing a song. They are playing a guitar while another man is playing a drum. The man is holding a guitar. The guitar is in the middle of the room",
+      "bleu4": 0.0471
+    },
+    {
+      "idx": 87,
+      "gt": "three people dressed in white clothing in caps giving three other people dressed in white clothing and caps a piggyback ride.",
+      "beam": "a group of men dressed in white and a group of women in white. They are wearing white t-shirts and hats. they are talking to each other. they look at each other and say,",
+      "nucleus": "a group of men holding a group of women. They are wearing white hats. they are wearing black hats. white hat. they look like they are trying to get into a fight. they run to",
+      "bleu4": 0.0465
+    },
+    {
+      "idx": 231,
+      "gt": "a man and a woman are walking along a sidewalk and talking in the sun",
+      "beam": "a man and woman walking on a beach. The woman is wearing a blue dress. The man is standing next to her.\n\n[email protected]\n\nShare this: Facebook\n\nTwitter",
+      "nucleus": "a man and woman walking on a pier. They are walking in the park. The woman is wearing a pink dress and the man is wearing sunglasses. The two walk on a sidewalk. The man is",
+      "bleu4": 0.046
+    },
+    {
+      "idx": 287,
+      "gt": "one man is sitting on top of a school bus, while another man, wearing a matching shirt, is standing inside.",
+      "beam": "a man standing in front of a bus. The man is wearing a school bus.\n\ngoogle.com/search?q=passenger+school+bus+truck+school",
+      "nucleus": "a man standing on a bus with a school bus. The man is wearing a school uniform. The bus is parked in front of the man. The boy is wearing school pants. The teacher is sitting",
+      "bleu4": 0.0457
     }
   ],
   "failures": [
     {
-      "idx": 248,
-      "gt": "a woman in a red dress looks through a pile of peppers.",
-      "beam": "a man and a woman are walking along a street. The man is wearing a white shirt and the woman is wearing black. The woman is holding a bag and the man is carrying a bag. The",
-      "nucleus": "a woman is sitting on a field with a basket of vegetables. The basket is filled with vegetables.\n\n22.7k SHARES Facebook Twitter Google Reddit Tumblr Digg Linkedin Stumbleupon Mail",
-      "bleu4": 0.0126
+      "idx": 45,
+      "gt": "a young woman in sweatpants looks behind her while standing near the public toilets.",
+      "beam": "a man standing in front of a building. He is wearing a white coat and a blue shirt. He walks into the building.\n\n[img]https://www.instagram.com/",
+      "nucleus": "a man walking down a street. He is walking on a sidewalk. He has a white shirt and pants. He looks like he is walking down the street.\n\n[img]http://i",
+      "bleu4": 0.0124
     },
     {
-      "idx": 283,
-      "gt": "two women in summer wear ride beach cruiser tricycles on the concrete near the beach.",
-      "beam": "a woman and a man riding on a bicycle. The woman is riding on the bicycle and the man is on the other side of the bike. The man is wearing a helmet and the woman is wearing",
-      "nucleus": "a man and woman ride on a roller coaster. The woman rides a bicycle. The man rides a bike. The women ride a bicycle and the man rides the woman. The men ride a bike and",
+      "idx": 211,
+      "gt": "a crowd gathers at a huge monumental building.",
+      "beam": "a large crowd of people standing around a building. People are standing around the building. Some people are wearing hats and hats.\n\n[Cross post]\n\nhttp://www.bbc.",
+      "nucleus": "a group of people walking along a street. People are standing around in the street. Some people are wearing hats and hats.\n\n[yd_video id=4]\n\nhttp://www",
       "bleu4": 0.0123
     },
     {
-      "idx": 166,
-      "gt": "a newsstand clerk is surrounded by her colorful merchandise.",
-      "beam": "a woman is holding a book in front of a crowd of people. The book is on the shelf. The woman looks at the book and smiles.\n\n[00:00:22]EMOTE",
-      "nucleus": "a woman is wearing a pink shirt and a pink sweater. The woman is holding a pink card with a red card. The card reads \"KEEP OUT OF THE BUSINESS OF THE UNITED STATES.\"",
-      "bleu4": 0.0113
-    },
-    {
-      "idx": 157,
-      "gt": "two children playing a game of checkers with toys in the background.",
-      "beam": "a boy and a girl playing with a toy. The boy is playing with the toy while the girl is playing. The girl is holding the toy and the boy is trying to play with it. The",
-      "nucleus": "two young children playing with a toy. One is playing with the other and the other is playing. The child is playing on the other side of the table. The toy is playing in the other child",
-      "bleu4": 0.0087
-    },
-    {
-      "idx": 118,
-      "gt": "three women in gypsy skirts stand around the parking area for the notre dame in france.",
-      "beam": "a group of people are standing in front of a statue of the Virgin Mary. The statue is in the middle of the street. The crowd is surrounded by people.\n\nCopyright by KXAN",
-      "nucleus": "a group of people are walking along the street. People are walking in front of the building. They are wearing red and white shirts and white pants. They have a large group of women in the background",
-      "bleu4": 0.0084
-    },
-    {
-      "idx": 188,
-      "gt": "the four wheel drive car is driving through a river.",
-      "beam": "a man and a woman are on a raft in the water. The man is wearing a blue shirt and blue jeans. The woman is wearing blue jeans and a blue jacket.\n\nhttp://www",
-      "nucleus": "a man and a woman are on a boat. The man is on a raft with his dog. The woman is on the other side of the boat.\n\nThe man and woman are in the",
-      "bleu4": 0.0084
-    },
-    {
-      "idx": 54,
-      "gt": "some people on a pier at night with one girl fishing off it.",
-      "beam": "a group of people are walking along a beach. The beach is surrounded by the ocean. The sunset is bright and clear. The sun is shining on the beach and the sunset is clear. There are",
-      "nucleus": "a group of people are walking along a beach in the middle of the ocean. The sunset is visible. The ocean is clear. The sun is shining on the beach. The beach is surrounded by a",
-      "bleu4": 0.0084
-    },
-    {
-      "idx": 112,
-      "gt": "two young guys with shaggy hair look at their hands while hanging out in the yard.",
-      "beam": "two man and a woman are walking on the ground. The man is holding a tree and the woman is standing on the other side. The woman walks up to the tree and holds it up. The",
-      "nucleus": "two men are playing a guitar. One of them is holding a guitar and the other is holding an umbrella. The man is holding the umbrella while the woman is holding it. The woman is playing a",
-      "bleu4": 0.0082
-    },
-    {
-      "idx": 141,
-      "gt": "three people enjoying the view in a modern building.",
-      "beam": "a man is standing in front of a building. The building is surrounded by a crowd of people. The man is wearing a white shirt and blue jeans. He is holding a sign that reads, \"",
-      "nucleus": "a man in a black suit is standing in front of a large building. The building is surrounded by a crowd of people. The man is wearing a black hat and a white shirt. The crowd is",
-      "bleu4": 0.0081
+      "idx": 247,
+      "gt": "two men in white hard hats are standing beside a graffiti-covered wall.",
+      "beam": "a man and a woman standing next to a sign. The sign is on the side of the building.\n\nopen/close all folders\n\n1\n\n2\n\n3\n\n4",
+      "nucleus": "a man standing next to a building with a sign.\n\nresidence building\n\nproper building\n (a)\n\na building\n.\n.\n\n\nproportions of the",
+      "bleu4": 0.0118
     },
     {
       "idx": 274,
       "gt": "twin toddlers dressed alike being pushed in plastic car strollers in a parade",
-      "beam": "a group of people are riding on a motorized roller coaster. The rollercoaster is on top of a hill. The person on the right is wearing a white shirt and a blue shirt. The",
-      "nucleus": "a young man is riding a motorbike in a field. The man is wearing a red and white hat. The woman is wearing blue. The motorbike is in front of the woman. The men",
-      "bleu4": 0.0065
+      "beam": "a group of people riding on a skateboard. They are riding on the back of a car.\n\n[email protected]\n\nhttp://www.bbc.co.uk/news",
+      "nucleus": "a group of people riding on a skateboard. The riders are riding on the back of a truck.\n\n\"The video shows a parade of people on a parade. The video shows people riding",
+      "bleu4": 0.0115
+    },
+    {
+      "idx": 128,
+      "gt": "three guys are barbecuing on a grill on a porch with a white fence.",
+      "beam": "a man standing in front of a building. He is talking to a man outside. The man is holding a bag. He looks at the bag and says, \"This is my bag.\" The man",
+      "nucleus": "a man standing outside with a bag of luggage in front of him. He looks around and sees someone standing outside. He notices someone is looking at him and says \"Hey, guys.\" The man looks",
+      "bleu4": 0.0097
+    },
+    {
+      "idx": 199,
+      "gt": "a band with two women and one man is on stage playing music.",
+      "beam": "a group of women are playing a video game. They are wearing headphones and a bandana. They play the video game on their phones. They stand in front of the camera. They look at each",
+      "nucleus": "a woman and a man playing a video game. They are playing video games. They stand on stage. They play a video of the video game and then they are playing the game. The woman is",
+      "bleu4": 0.0092
+    },
+    {
+      "idx": 297,
+      "gt": "a child holding on to the bar while riding a horse on a carousel ride.",
+      "beam": "a group of horses in a park. Some of the horses are standing in front of a fence. The horses are showing off their horses. The fence is open and there are horses in the park.",
+      "nucleus": "a group of horses are standing on a fence. The horses are wearing white t-shirts. They are wearing red t-shirt and pants. They have a pair of white pants and shoes. They",
+      "bleu4": 0.0087
+    },
+    {
+      "idx": 188,
+      "gt": "the four wheel drive car is driving through a river.",
+      "beam": "a truck is in the water in the middle of the river. The truck is on the side of the road. The river is covered in snow. The snow is falling on the truck.",
+      "nucleus": "a truck is on a lake in the water. The truck is sitting on a log. It is in the middle of the lake. The boat is in a shallow water. It has a boat and",
+      "bleu4": 0.0086
+    },
+    {
+      "idx": 166,
+      "gt": "a newsstand clerk is surrounded by her colorful merchandise.",
+      "beam": "a man sitting at a table with a bunch of books on his desk. He has a lot of books in his hand. He also has a large selection of toys. The shelves are full of books",
+      "nucleus": "a man sitting in a booth with a lot of things on his table. The man has a large selection of things. He has a huge selection of books and magazines. He also has a lot more",
+      "bleu4": 0.0075
+    },
+    {
+      "idx": 35,
+      "gt": "food prepares are serving their customers with pride.",
+      "beam": "a group of people in a kitchen preparing food. They are preparing food for a restaurant. The food is being prepared by a chef. The chef is wearing a chef's hat and a hat with a",
+      "nucleus": "three chefs in a kitchen preparing food. One of the chefs is wearing a hat. The other two are wearing a mask. The chef is wearing gloves. The chefs are preparing food with a knife.",
+      "bleu4": 0.0073
     }
   ]
 }

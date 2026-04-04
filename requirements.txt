@@ -16,3 +16,4 @@ accelerate>=0.27
 huggingface-hub>=0.21
 jupyter>=1.0
 ipykernel>=6.0
+flask>=3.0
