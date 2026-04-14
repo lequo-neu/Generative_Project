@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>IE7615 Group 8 — Visual Captioning · IE7615</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Arial override: professor-friendly readable sizes -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <style>
@@ -19,12 +20,12 @@
   --purple:#7c3aed;--purple-dim:rgba(124,58,237,.08);
   --red:#dc2626;--red-dim:rgba(220,38,38,.08);
   --amber:#d97706;
-  --mono:'IBM Plex Mono',monospace;
-  --sans:'IBM Plex Sans',sans-serif;
+  --mono:'Arial',monospace;
+  --sans:'Arial',sans-serif;
   --r4:4px;--r6:6px;--r8:8px;
-  --sidebar:220px;
+  --sidebar:180px;
 }
-html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:var(--sans);font-size:15px;line-height:1.6;overflow:hidden}
+html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:Arial,sans-serif;font-size:16px;line-height:1.65;overflow:hidden}
 ::selection{background:var(--acc-dim);color:var(--t0)}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--bg2)}
@@ -39,13 +40,13 @@ html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:var(--sa
 .sb-brand{padding:18px 16px 14px;border-bottom:1px solid var(--line)}
 .sb-logo{display:flex;align-items:center;gap:10px;margin-bottom:2px}
 .sb-icon{width:28px;height:28px;border-radius:var(--r6);background:var(--acc);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:600;color:#fff;flex-shrink:0}
-.sb-name{font-size:13px;font-weight:600;color:var(--t0);line-height:1.2}
+.sb-name{font-size:14px;font-weight:700;color:var(--t0);line-height:1.2}
 .sb-sub{font-size:10px;color:var(--t3);font-family:var(--mono);margin-top:1px}
 .sb-course{font-size:10px;color:var(--t3);font-family:var(--mono);margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
 
 .sb-section{padding:16px 12px 8px;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);font-family:var(--mono)}
 .sb-nav{padding:0 8px;flex:1;overflow-y:auto}
-.sb-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r6);cursor:pointer;color:var(--t2);font-size:14px;font-weight:500;transition:all .12s;margin-bottom:2px;border:1px solid transparent;user-select:none}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:var(--r6);cursor:pointer;color:var(--t2);font-size:15px;font-weight:500;transition:all .12s;margin-bottom:2px;border:1px solid transparent;user-select:none}
 .sb-item:hover{background:var(--bg3);color:var(--t1)}
 .sb-item.active{background:#1e2433;color:#ffffff;border-color:#1e2433;font-weight:700}
 .sb-item svg{width:15px;height:15px;flex-shrink:0;opacity:.7}
@@ -70,9 +71,9 @@ html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:var(--sa
 
 /* ── TOPBAR ── */
 .topbar{position:sticky;top:0;z-index:100;background:rgba(248,249,251,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:0 24px;height:44px;display:flex;align-items:center;gap:12px}
-.topbar-title{font-size:15px;font-weight:600;color:var(--t0)}
+.topbar-title{font-size:16px;font-weight:700;color:var(--t0)}
 .topbar-sep{width:1px;height:16px;background:var(--line2)}
-.topbar-sub{font-size:13px;color:var(--t3);font-family:var(--mono)}
+.topbar-sub{font-size:13px;color:var(--t3);font-family:Arial,sans-serif}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
 .chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;font-size:11px;font-family:var(--mono);font-weight:500;border:1px solid var(--line2);background:var(--bg2);color:var(--t2)}
 .chip.green{border-color:rgba(34,197,94,.25);background:var(--green-dim);color:var(--green)}
@@ -83,8 +84,8 @@ html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:var(--sa
 .content{padding:24px}
 .content-wide{padding:0}
 .section-label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);font-family:var(--mono);margin-bottom:12px}
-.section-title{font-size:22px;font-weight:700;color:var(--t0);letter-spacing:-.02em;margin-bottom:4px}
-.section-desc{font-size:14px;color:var(--t1);line-height:1.6;max-width:600px}
+.section-title{font-size:24px;font-weight:700;color:var(--t0);margin-bottom:6px}
+.section-desc{font-size:15px;color:var(--t1);line-height:1.7;max-width:620px}
 
 /* ── CARDS ── */
 .card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r8);overflow:hidden}
@@ -94,7 +95,7 @@ html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:var(--sa
 .card-body{padding:16px}
 
 /* ── DEMO PAGE LAYOUT ── */
-.demo-layout{display:grid;grid-template-columns:420px 1fr;height:calc(100vh - 44px);overflow:hidden}
+.demo-layout{display:grid;grid-template-columns:440px 1fr;height:calc(100vh - 44px);overflow:hidden}
 .demo-left{border-right:1px solid var(--line);overflow-y:auto;display:flex;flex-direction:column}
 .demo-right{overflow-y:auto;display:flex;flex-direction:column}
 
@@ -147,8 +148,8 @@ html,body{height:100%;background:var(--bg0);color:var(--t1);font-family:var(--sa
 .controls-panel{padding:14px 16px;border-bottom:1px solid var(--line)}
 .ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .ctrl-group{}
-.ctrl-label{font-size:11px;font-family:var(--mono);font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:block}
-.ctrl-select{width:100%;background:var(--bg3);border:1px solid var(--line2);color:var(--t1);padding:9px 12px;border-radius:var(--r6);font-family:var(--mono);font-size:14px;cursor:pointer;outline:none;transition:border-color .12s}
+.ctrl-label{font-size:12px;font-family:Arial,sans-serif;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;display:block}
+.ctrl-select{width:100%;background:var(--bg3);border:1px solid var(--line2);color:var(--t1);padding:9px 12px;border-radius:var(--r6);font-family:Arial,sans-serif;font-size:14px;cursor:pointer;outline:none;transition:border-color .12s}
 .ctrl-select:focus,.ctrl-select:hover{border-color:var(--acc)}
 .range-wrap{}
 .range-top{display:flex;justify-content:space-between;margin-bottom:5px}
@@ -173,7 +174,10 @@ input[type=range]:hover::-webkit-slider-thumb{box-shadow:0 0 0 5px rgba(17,24,39
 .rtick-label{font-size:8.5px;font-family:var(--mono);color:var(--t3);white-space:nowrap;line-height:1}
 .rtick-label.highlight{color:var(--acc);font-weight:700}
 .rtick-label.highlight-p{color:var(--purple);font-weight:700}
-.ruler-legend{display:flex;justify-content:space-between;margin-top:3px;font-size:9px;font-family:var(--mono);color:var(--t3)}
+.sent-btn{flex:1;padding:6px 0;font-size:13px;font-weight:700;border:1px solid var(--line2);background:var(--bg1);color:var(--t2);border-radius:5px;cursor:pointer;transition:.15s;font-family:Arial,sans-serif;line-height:1}
+.sent-btn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.sent-btn:hover:not(.on){background:var(--bg3);border-color:var(--t3)}
+.ruler-legend{display:flex;justify-content:space-between;margin-top:3px;font-size:10px;font-family:Arial,sans-serif;color:var(--t3)}
 
 /* ── MODE TOGGLE ── */
 .mode-row{display:flex;gap:6px;margin-bottom:12px}
@@ -198,7 +202,7 @@ input[type=range]:hover::-webkit-slider-thumb{box-shadow:0 0 0 5px rgba(17,24,39
 .cap-card-hdr{padding:8px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
 .cap-model-badge{font-size:9px;font-family:var(--mono);font-weight:700;padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:.06em}
 .cap-strat-badge{font-size:9px;font-family:var(--mono);padding:2px 7px;border-radius:3px;background:var(--bg3);border:1px solid var(--line);color:var(--t3)}
-.cap-card-text{padding:12px 14px;font-size:15px;line-height:1.65;color:var(--t1);font-style:italic}
+.cap-card-text{padding:14px 16px;font-size:17px;line-height:1.75;color:var(--t1);font-style:italic;font-family:Arial,sans-serif}
 .cap-card-foot{padding:6px 12px;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px}
 .conf-bar{flex:1;height:2px;background:var(--bg4);border-radius:1px}
 .conf-fill{height:100%;border-radius:1px;transition:width .4s ease}
@@ -210,10 +214,10 @@ input[type=range]:hover::-webkit-slider-thumb{box-shadow:0 0 0 5px rgba(17,24,39
 .hyp-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line)}
 .hyp-item:last-child{border-bottom:none}
 .hyp-rank{width:18px;height:18px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--mono);font-weight:700;flex-shrink:0}
-.hyp-text{font-size:14px;color:var(--t0);flex:1;font-style:italic;font-weight:500}
+.hyp-text{font-size:15px;color:var(--t0);flex:1;font-style:italic;font-weight:500;font-family:Arial,sans-serif}
 .hyp-score{font-size:11px;font-family:var(--mono);color:var(--t3)}
 
-.timing-bar{padding:10px 14px;background:var(--bg1);border:1px solid var(--line);border-radius:var(--r6);margin-bottom:8px;display:flex;align-items:center;gap:12px;font-size:13px;font-family:var(--mono);color:var(--t3)}
+.timing-bar{padding:10px 14px;background:var(--bg1);border:1px solid var(--line);border-radius:var(--r6);margin-bottom:8px;display:flex;align-items:center;gap:12px;font-size:13px;font-family:Arial,sans-serif;color:var(--t3)}
 .timing-seg{display:flex;align-items:center;gap:5px}
 .timing-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 
@@ -222,21 +226,21 @@ input[type=range]:hover::-webkit-slider-thumb{box-shadow:0 0 0 5px rgba(17,24,39
 .metrics-table-area{overflow-y:auto;border-right:1px solid var(--line)}
 .metrics-side{overflow-y:auto}
 table{width:100%;border-collapse:collapse}
-thead th{padding:10px 14px;font-size:11px;font-family:var(--mono);font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line);text-align:right;background:var(--bg1);position:sticky;top:0;z-index:1}
+thead th{padding:11px 14px;font-size:12px;font-family:Arial,sans-serif;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--line);text-align:right;background:var(--bg1);position:sticky;top:0;z-index:1}
 thead th:first-child{text-align:left}
 tbody tr{border-bottom:1px solid var(--line);transition:background .1s}
 tbody tr:hover{background:var(--bg2)}
 tbody tr.best-row{background:rgba(249,115,22,.04)}
-tbody td{padding:10px 14px;font-size:13px;font-family:var(--mono);text-align:right;color:var(--t2)}
-tbody td:first-child{text-align:left;color:var(--t1);font-weight:600}
+tbody td{padding:11px 14px;font-size:14px;font-family:Arial,sans-serif;text-align:right;color:var(--t2)}
+tbody td:first-child{text-align:left;color:var(--t1);font-weight:700}
 .best-cell{color:var(--acc);font-weight:700}
 .model-badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-family:var(--mono);font-weight:700;margin-right:5px}
 
 /* ── SENSITIVITY TAB ── */
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)}
 .chart-cell{background:var(--bg1);padding:20px}
-.chart-title{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:4px}
-.chart-sub{font-size:12px;color:var(--t3);font-family:var(--mono);margin-bottom:14px}
+.chart-title{font-size:15px;font-weight:700;color:var(--t1);margin-bottom:4px}
+.chart-sub{font-size:13px;color:var(--t3);font-family:Arial,sans-serif;margin-bottom:14px}
 .chart-canvas-wrap{position:relative;height:200px}
 .guidance-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line)}
 .guidance-cell{background:var(--bg1);padding:14px;text-align:center}
@@ -251,8 +255,8 @@ tbody td:first-child{text-align:left;color:var(--t1);font-weight:600}
 .findings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:24px}
 .finding-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r8);padding:14px;border-left:3px solid var(--acc)}
 .fc-num{font-size:9px;font-family:var(--mono);font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
-.fc-title{font-size:14px;font-weight:600;color:var(--t0);margin-bottom:6px}
-.fc-body{font-size:13px;color:var(--t1);line-height:1.65}
+.fc-title{font-size:16px;font-weight:700;color:var(--t0);margin-bottom:6px}
+.fc-body{font-size:14px;color:var(--t1);line-height:1.7}
 .comparison-table{border:1px solid var(--line);border-radius:var(--r8);overflow:hidden}
 
 /* ── LIVE ANALYSIS PANEL ── */
@@ -345,20 +349,20 @@ tbody td:first-child{text-align:left;color:var(--t1);font-weight:600}
   <div class="sb-section">Image to Text</div>
   <div class="sb-nav" id="sbNav">
     <div class="sb-item active" data-page="demo" onclick="nav(this)">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="14" height="14" rx="2"/><path d="M1 6h14M6 6v9"/></svg>
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="14" height="14" rx="2"/><path d="M1 6h14M6 6v9"/></svg>
       Live Demo
       
     </div>
     <div class="sb-item" data-page="metrics" onclick="nav(this)">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12l4-4 3 3 5-6"/><circle cx="14" cy="6" r="1.5" fill="currentColor" stroke="none"/></svg>
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12l4-4 3 3 5-6"/><circle cx="14" cy="6" r="1.5" fill="currentColor" stroke="none"/></svg>
       Metrics
     </div>
     <div class="sb-item" data-page="sensitivity" onclick="nav(this)">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h2M6 4h2M10 6h2M6 12h2"/><circle cx="4" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="4" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg>
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h2M6 4h2M10 6h2M6 12h2"/><circle cx="4" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="4" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg>
       Sensitivity
     </div>
     <div class="sb-item" data-page="analysis" onclick="nav(this)">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v4l2 2"/></svg>
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="5"/><path d="M6 3v4l2 2"/></svg>
       Analysis
     </div>
     <!-- <div class="sb-section" style="padding-top:10px;border-top:1px solid var(--line);margin-top:6px">Text to Image</div>
@@ -398,7 +402,7 @@ tbody td:first-child{text-align:left;color:var(--t1);font-weight:600}
       <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
         <input type="file" id="fileInput" accept="image/*">
         <div class="upload-title">Drop image or click to browse</div>
-        <div class="upload-sub">Any resolution &mdash; CLIP center-crop normalization applied</div>
+        <div class="upload-sub">Any resolution, CLIP center-crop normalization applied</div>
         <div class="fmt-row">
           <span class="fmt hi">JPG</span><span class="fmt hi">PNG</span><span class="fmt hi">WebP</span><span class="fmt">BMP</span><span class="fmt">TIFF</span><span class="fmt">HEIC</span><span class="fmt">GIF</span> <!--<span class="fmt">RAW</span>-->
         </div>
@@ -447,9 +451,9 @@ tbody td:first-child{text-align:left;color:var(--t1);font-weight:600}
           <div class="ctrl-group" style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.18);border-radius:var(--r8);padding:10px">
             <label class="ctrl-label" style="color:var(--blue)">Model Variant</label>
             <select class="ctrl-select" id="selModel">
-              <option value="frozen">Frozen &mdash; ProjectionHead only</option>
-              <option value="ft4l">FT-4L &mdash; Fine-tuned 4 layers</option>
-              <option value="lora" selected>LoRA (r=8) &mdash; Best CIDEr</option>
+              <option value="frozen">Frozen: ProjectionHead only</option>
+              <option value="ft4l">FT-4L: Fine-tuned 4 layers</option>
+              <option value="lora" selected>LoRA (r=8)</option>
             </select>
           </div>
           <div class="ctrl-group" style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.18);border-radius:var(--r8);padding:10px">
@@ -529,6 +533,28 @@ tbody td:first-child{text-align:left;color:var(--t1);font-weight:600}
             </div>
           </div>
         </div>
+        <!-- Output Length Controls -->
+        <div style="display:flex;gap:10px;margin-bottom:10px;align-items:flex-start">
+          <div class="ctrl-group" style="flex:1;min-width:0">
+            <label class="ctrl-label">Sentences</label>
+            <div style="display:flex;gap:5px;margin-top:4px">
+              <button onclick="setSentences(1)" id="sent1" class="sent-btn on">1</button>
+              <button onclick="setSentences(2)" id="sent2" class="sent-btn">2</button>
+              <button onclick="setSentences(3)" id="sent3" class="sent-btn">3</button>
+              <button onclick="setSentences(0)" id="sent0" class="sent-btn">Auto</button>
+            </div>
+            <div style="font-size:11px;color:var(--t3);margin-top:4px"># complete sentences</div>
+          </div>
+          <div class="ctrl-group" style="flex:2;min-width:0">
+            <label class="ctrl-label">Max Words &nbsp;<span id="maxWordsLabel" style="color:var(--acc);font-weight:700;font-size:13px">Off</span></label>
+            <input type="range" id="rngWords" min="0" max="60" value="0" step="5"
+              style="width:100%;accent-color:#111827;margin-top:6px"
+              oninput="updateWordsLabel(this.value)">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--t3);font-family:Arial,sans-serif;margin-top:3px">
+              <span>Off</span><span>15</span><span>30</span><span>45</span><span>60w</span>
+            </div>
+          </div>
+        </div>
         <div class="mode-row">
           <div class="mode-btn" id="btnSingle" onclick="setMode('single')">Single Model</div>
           <div class="mode-btn on" id="btnAll" onclick="setMode('all')">All 3 Models</div>
@@ -553,8 +579,8 @@ tbody td:first-child{text-align:left;color:var(--t1);font-weight:600}
 <div class="page" id="page-metrics">
   <div class="topbar">
     <span class="topbar-title">Evaluation Metrics</span>
-    <div class="topbar-sep"></div>
-    <span class="topbar-sub" id="metricsTopbarSub">COCO val2017 &mdash; 500 images</span>
+    <!-- <div class="topbar-sep"></div>
+    <span class="topbar-sub" id="metricsTopbarSub">COCO val2017</span> -->
     <div class="topbar-right">
       <div style="display:flex;background:var(--bg3);border:1px solid var(--line2);border-radius:var(--r6);overflow:hidden">
         <button onclick="switchMetricsTab('dynamic')" id="mTabDynamic" style="padding:6px 14px;font-family:var(--mono);font-size:11px;font-weight:700;border:none;cursor:pointer;background:var(--acc);color:#fff">Dynamic</button>
@@ -581,10 +607,10 @@ tbody td:first-child{text-align:left;color:var(--t1);font-weight:600}
         <!-- CLIPScore -->
         <div style="background:var(--bg2);border:1px solid var(--line);border-radius:var(--r8);padding:14px">
           <div style="font-size:11px;font-weight:700;color:var(--blue);font-family:var(--mono);margin-bottom:4px">CLIPScore</div>
-          <div style="font-size:10px;color:var(--t3);font-family:var(--mono);margin-bottom:10px">cos_sim(CLIP_image, CLIP_text) x 2.5 &mdash; visual alignment</div>
+          <div style="font-size:10px;color:var(--t3);font-family:var(--mono);margin-bottom:10px">cosine_similarity(CLIP_image, CLIP_caption)</div>
           <div id="ngtClipScore" style="font-size:28px;font-weight:700;font-family:var(--mono);color:var(--blue)">--</div>
           <div style="height:4px;background:var(--bg4);border-radius:2px;margin-top:8px"><div id="ngtClipBar" style="height:100%;width:0%;background:var(--blue);border-radius:2px;transition:width .5s"></div></div>
-          <div style="font-size:9px;font-family:var(--mono);color:var(--t3);margin-top:4px">Range 0-100 &mdash; human threshold ~67</div>
+          <div style="font-size:9px;font-family:var(--mono);color:var(--t3);margin-top:4px">Range 0-100: human threshold ~67</div>
         </div>
         <!-- Sentence-BERT -->
         <div style="background:var(--bg2);border:1px solid var(--line);border-radius:var(--r8);padding:14px">
@@ -592,15 +618,15 @@ tbody td:first-child{text-align:left;color:var(--t1);font-weight:600}
           <div style="font-size:10px;color:var(--t3);font-family:var(--mono);margin-bottom:10px">Avg cosine sim among 3 caption paraphrases via CLIP text encoder</div>
           <div id="ngtSbert" style="font-size:28px;font-weight:700;font-family:var(--mono);color:var(--green)">--</div>
           <div style="height:4px;background:var(--bg4);border-radius:2px;margin-top:8px"><div id="ngtSbertBar" style="height:100%;width:0%;background:var(--green);border-radius:2px;transition:width .5s"></div></div>
-          <div style="font-size:9px;font-family:var(--mono);color:var(--t3);margin-top:4px">Range 0-1 &mdash; higher = more internally consistent</div>
+          <div style="font-size:9px;font-family:var(--mono);color:var(--t3);margin-top:4px">Range 0-1: higher = more internally consistent</div>
         </div>
         <!-- Perplexity -->
         <div style="background:var(--bg2);border:1px solid var(--line);border-radius:var(--r8);padding:14px">
-          <div style="font-size:11px;font-weight:700;color:var(--purple);font-family:var(--mono);margin-bottom:4px">Perplexity (GPT-2)</div>
-          <div style="font-size:10px;color:var(--t3);font-family:var(--mono);margin-bottom:10px">Language model confidence &mdash; lower = more fluent</div>
+          <div style="font-size:11px;font-weight:700;color:var(--purple);font-family:var(--mono);margin-bottom:4px">Perplexity</div>
+          <div style="font-size:10px;color:var(--t3);font-family:var(--mono);margin-bottom:10px">Language model fluency: lower = more fluent</div>
           <div id="ngtPpl" style="font-size:28px;font-weight:700;font-family:var(--mono);color:var(--purple)">--</div>
           <div style="height:4px;background:var(--bg4);border-radius:2px;margin-top:8px"><div id="ngtPplBar" style="height:100%;width:0%;background:var(--purple);border-radius:2px;transition:width .5s"></div></div>
-          <div style="font-size:9px;font-family:var(--mono);color:var(--t3);margin-top:4px">Typical good captions: 20-80 &mdash; lower is better</div>
+          <div style="font-size:9px;font-family:var(--mono);color:var(--t3);margin-top:4px">Typical good captions: 20-80: lower is better</div>
         </div>
         <!-- Grammar -->
         <div style="background:var(--bg2);border:1px solid var(--line);border-radius:var(--r8);padding:14px">
@@ -611,6 +637,8 @@ tbody td:first-child{text-align:left;color:var(--t1);font-weight:600}
           <div style="font-size:9px;font-family:var(--mono);color:var(--t3);margin-top:4px">% of tokens with no grammar errors detected</div>
         </div>
       </div>
+      <!-- Live Distinct-2 / Self-BLEU panel (populated automatically after generation) -->
+      <div id="liveDiversityPanel" style="display:none;margin-top:14px"></div>
       <div style="margin-top:12px;text-align:center">
         <button onclick="runNoGTMetrics()" id="btnNgt" style="padding:9px 24px;background:var(--blue);color:#fff;border:none;border-radius:var(--r6);font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer" disabled>Compute (generate captions first)</button>
         <span id="ngtStatus" style="font-size:11px;font-family:var(--mono);color:var(--t3);margin-left:10px"></span>
@@ -642,13 +670,13 @@ tbody td:first-child{text-align:left;color:var(--t1);font-weight:600}
           </div>
         </div>
         <table id="metricsTable" style="width:100%">
-          <thead>
-            <tr>
-              <th style="text-align:left">Config</th>
-              <th>BLEU-1</th><th>BLEU-4</th><th>METEOR</th><th>CIDEr</th><th>ROUGE-L</th>
-            </tr>
-          </thead>
-          <tbody id="metricsTbody"></tbody>
+        <thead>
+        <tr>
+        <th style="text-align:left">Config</th>
+        <th>BLEU-1</th><th>BLEU-4</th><th>METEOR</th><th>CIDEr</th><th>ROUGE-L</th><th>Distinct-2</th><th>Self-BLEU</th>
+        </tr>
+        </thead>
+        <tbody id="metricsTbody"></tbody>
         </table>
       </div>
       <div style="overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px">
@@ -670,6 +698,8 @@ tbody td:first-child{text-align:left;color:var(--t1);font-weight:600}
             <div style="font-size:11px;color:var(--t2);line-height:1.6"><span style="color:var(--blue);font-family:var(--mono);font-weight:700">METEOR</span> &mdash; Unigram F-score with synonym matching via WordNet. More recall-sensitive than BLEU.</div>
             <div style="font-size:11px;color:var(--t2);line-height:1.6"><span style="color:var(--purple);font-family:var(--mono);font-weight:700">CIDEr</span> &mdash; TF-IDF weighted n-gram consensus across all dataset references. Primary metric for image captioning benchmarks.</div>
             <div style="font-size:11px;color:var(--t2);line-height:1.6"><span style="color:var(--green);font-family:var(--mono);font-weight:700">ROUGE-L</span> &mdash; Longest common subsequence recall. Captures word order without requiring contiguous n-gram matches.</div>
+            <div style="font-size:11px;color:var(--t2);line-height:1.6"><span style="color:var(--t1);font-family:var(--mono);font-weight:700">Distinct-2</span> &mdash; Ratio of unique bigrams to total bigrams across generated captions. Higher = more lexically diverse output. Nucleus sampling scores highest (~0.75-0.80).</div>
+            <div style="font-size:11px;color:var(--t2);line-height:1.6"><span style="color:var(--red);font-family:var(--mono);font-weight:700">Self-BLEU</span> &mdash; BLEU of each caption against others in the same batch. Lower = captions are more distinct from each other. Best (lowest) for nucleus sampling. Highlighted cell = best (most diverse).</div>
           </div>
         </div>
       </div>
@@ -792,12 +822,43 @@ tbody td:first-child{text-align:left;color:var(--t1);font-weight:600}
         <div class="fc-title">Beam search consistently outperforms greedy and nucleus</div>
         <div class="fc-body">Across all 3 models on COCO, beam search yields the highest CIDEr and BLEU-4. Greedy decoding matches beam for FT-4L (BLEU-4 0.288 vs 0.292) but fails for LoRA. Nucleus sampling adds diversity at 15-20% CIDEr cost.</div>
       </div>
+      <div class="finding-card" style="border-left-color:var(--red)">
+        <div class="fc-num" style="color:var(--red)">Finding 05 &mdash; LoRA underperforms Frozen on COCO</div>
+        <div class="fc-title">Why LoRA scores lower than Frozen (CIDEr 0.556 vs 0.936)</div>
+        <div class="fc-body">
+          This result is counter-intuitive but explainable by three compounding factors:<br><br>
+          <strong>1. Rank too low for COCO scale.</strong> LoRA r=8 adds only ~2M trainable parameters on top of a 117M GPT-2. COCO has 590K captions with high lexical diversity. The adapter capacity is insufficient to absorb that variance, while Frozen + full ProjectionHead training directly optimizes the image-to-token bridge.<br><br>
+          <strong>2. LoRA checkpoint trained on Flickr30k first.</strong> The LoRA weights were initialized from a Flickr30k fine-tune, then adapted to COCO. This domain shift may have caused partial overwriting of useful Flickr representations without fully converging on COCO.<br><br>
+          <strong>3. COCO evaluation rewards lexical precision.</strong> CIDEr uses TF-IDF weighting over all 5 COCO references per image. LoRA with nucleus sampling (CIDEr 0.362) generates more diverse but less reference-aligned captions, which is penalized by CIDEr more than by ROUGE-L.
+        </div>
+      </div>
+    </div>
+    <div style="padding:10px 18px;font-size:13px;font-weight:700;color:#1e2433;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:var(--r6);margin:24px 0 12px;display:inline-block">Caption Comparison &mdash; Same Image, 3 Models</div>
+    <div style="margin-bottom:20px">
+      <div style="font-size:12px;color:var(--t3);font-family:var(--mono);margin-bottom:12px">Side-by-side captions for the last generated image. Generate captions in Live Demo (All 3 Models) to populate this table.</div>
+      <div id="analysisCompareTable">
+        <div style="background:var(--bg2);border:1px solid var(--line);border-radius:var(--r8);overflow:hidden">
+          <table style="width:100%;border-collapse:collapse">
+            <thead>
+              <tr style="border-bottom:1px solid var(--line)">
+                <th style="text-align:left;padding:10px 14px;font-size:11px;font-family:var(--mono);color:var(--t3);font-weight:700;background:var(--bg1)">Strategy</th>
+                <th style="text-align:left;padding:10px 14px;font-size:11px;font-family:var(--mono);color:var(--blue);font-weight:700;background:var(--bg1)">Frozen</th>
+                <th style="text-align:left;padding:10px 14px;font-size:11px;font-family:var(--mono);color:var(--amber);font-weight:700;background:var(--bg1)">FT-4L</th>
+                <th style="text-align:left;padding:10px 14px;font-size:11px;font-family:var(--mono);color:var(--acc);font-weight:700;background:var(--bg1)">LoRA</th>
+              </tr>
+            </thead>
+            <tbody id="compareTbody">
+              <tr><td colspan="4" style="padding:20px;text-align:center;font-size:12px;font-family:var(--mono);color:var(--t3)">Generate captions with All 3 Models in Live Demo to see comparison</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
     <div style="padding:10px 18px;font-size:13px;font-weight:700;color:#1e2433;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:var(--r6);margin:24px 0 12px;display:inline-block">Ethical Considerations</div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
       <div style="background:var(--bg2);border:1px solid var(--line);border-radius:var(--r8);padding:14px">
         <div style="font-size:12px;font-weight:600;color:var(--amber);margin-bottom:6px">Dataset Bias</div>
-        <div style="font-size:12px;color:var(--t2);line-height:1.65">COCO captions reflect Mechanical Turk annotator biases. Western-centric scenes and gender stereotypes are overrepresented. Models trained on this data may underperform on diverse cultural contexts.</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.65">COCO captions reflect annotator biases. Western-centric scenes and gender stereotypes are overrepresented. Models trained on this data may underperform on diverse cultural contexts.</div>
       </div>
       <div style="background:var(--bg2);border:1px solid var(--line);border-radius:var(--r8);padding:14px">
         <div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:6px">Misrepresentation Risk</div>
@@ -1109,6 +1170,35 @@ async function runNoGTMetrics() {
 function enableNgtButton() {
   const btn = document.getElementById('btnNgt');
   if (btn) { btn.disabled = false; btn.textContent = 'Compute Reference-Free Metrics'; }
+  // Auto-compute Distinct-2 / Self-BLEU when we have 2+ captions
+  if (liveLastResult && liveLastResult.results && liveLastResult.results.length >= 2) {
+    const captions = liveLastResult.results.map(r => r.caption);
+    fetch('/api/diversity_metrics', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({captions})
+    }).then(r => r.json()).then(d => {
+      const el = document.getElementById('liveDiversityPanel');
+      if (!el || d.error) return;
+      const d2c = d.distinct2 >= 0.7 ? 'var(--green)' : d.distinct2 >= 0.5 ? 'var(--amber)' : 'var(--red)';
+      const sbc = d.self_bleu  <= 0.35 ? 'var(--green)' : d.self_bleu  <= 0.5  ? 'var(--amber)' : 'var(--red)';
+      el.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+        + '<div style="background:var(--bg1);border:1px solid var(--line);border-radius:var(--r8);padding:12px">'
+        + '<div style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--t1);margin-bottom:4px">Distinct-2</div>'
+        + '<div style="font-size:10px;color:var(--t3);font-family:var(--mono);margin-bottom:8px">Unique bigrams / total bigrams across ' + d.n_captions + ' captions</div>'
+        + '<div style="font-size:28px;font-weight:700;font-family:var(--mono);color:' + d2c + '">' + d.distinct2.toFixed(4) + '</div>'
+        + '<div style="height:4px;background:var(--bg4);border-radius:2px;margin-top:8px"><div style="height:100%;width:' + Math.round(d.distinct2*100) + '%;background:' + d2c + ';border-radius:2px"></div></div>'
+        + '<div style="font-size:9px;font-family:var(--mono);color:var(--t3);margin-top:4px">Higher is better (above 0.7 = diverse)</div></div>'
+        + '<div style="background:var(--bg1);border:1px solid var(--line);border-radius:var(--r8);padding:12px">'
+        + '<div style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--t1);margin-bottom:4px">Self-BLEU</div>'
+        + '<div style="font-size:10px;color:var(--t3);font-family:var(--mono);margin-bottom:8px">Avg BLEU of each caption vs others (' + d.n_captions + ' captions)</div>'
+        + '<div style="font-size:28px;font-weight:700;font-family:var(--mono);color:' + sbc + '">' + d.self_bleu.toFixed(4) + '</div>'
+        + '<div style="height:4px;background:var(--bg4);border-radius:2px;margin-top:8px"><div style="height:100%;width:' + Math.round(d.self_bleu*100) + '%;background:' + sbc + ';border-radius:2px"></div></div>'
+        + '<div style="font-size:9px;font-family:var(--mono);color:var(--t3);margin-top:4px">Lower is better (below 0.35 = diverse)</div></div>'
+        + '</div>'
+        + '<div style="margin-top:6px;font-size:10px;font-family:var(--mono);color:var(--t3)">Computed via /api/diversity_metrics | ' + d.n_unique + ' unique bigrams / ' + d.n_bigrams + ' total</div>';
+      el.style.display = 'block';
+    }).catch(() => {});
+  }
 }
 
 
@@ -1141,7 +1231,7 @@ function pollStatus() {
     if (d.ready) {
       dot.className = 'sb-status-dot ready';
       lbl.textContent = 'Models Ready';
-      msg.textContent = 'Models ready';
+      msg.textContent = '';
       document.getElementById('datasetChip').textContent = d.dataset === 'coco_full' ? 'COCO 2017 -- 118K' : 'Flickr30k';
     } else {
       dot.className = 'sb-status-dot loading';
@@ -1265,7 +1355,7 @@ async function runInference() {
   try {
     const resp = await fetch('/api/caption', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ image: currentImageB64, model: modelMode==='all'?'all':model, strategy: strat, beam_width: beamW, temperature: tempV })
+      body: JSON.stringify({ image: currentImageB64, model: modelMode==='all'?'all':model, strategy: strat, beam_width: beamW, temperature: tempV, num_sentences: _numSentences, max_words: _maxWords })
     });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
@@ -1288,41 +1378,64 @@ function renderResults(data) {
   liveLastResult = { thumb: data.thumb || null, results: data.results || [], meta: data.meta || {}, timing: data.timing || {}, filename: currentFile ? currentFile.name : 'image' };
   const MCOLORS = {frozen:'var(--blue)',ft4l:'var(--amber)',lora:'var(--acc)'};
   const MNAMES  = {frozen:'Frozen',ft4l:'FT-4L',lora:'LoRA'};
-  const CIDER_RANK = {frozen:0.339,ft4l:0.371,lora:0.386};
-  const STRAT_MULT = {beam:1.0,nucleus:0.75,greedy:0.20};
   let html = '';
   const t = data.timing;
   if (t) {
     html += '<div class="timing-bar"><div class="timing-seg"><div class="timing-dot" style="background:var(--blue)"></div>CLIP: ' + t.clip_ms + 'ms</div><div class="timing-seg"><div class="timing-dot" style="background:var(--purple)"></div>GPT-2: ' + t.gen_ms + 'ms</div><div class="timing-seg" style="margin-left:auto;color:var(--t2)">Total: ' + (t.clip_ms+t.gen_ms) + 'ms</div></div>';
   }
-  // Caption cards first, hypotheses at the end
-  (data.results || []).forEach(r => {
+  // Caption cards — CLIPScore fetched asynchronously after render
+  const cardIds = [];
+  (data.results || []).forEach((r, idx) => {
     const c = MCOLORS[r.model] || 'var(--t2)';
     const n = MNAMES[r.model] || r.model;
-    const cider = CIDER_RANK[r.model] || 0.35;
-    const smult = STRAT_MULT[r.strategy] || 1.0;
-    const conf  = Math.min(88, Math.round(cider / 0.386 * smult * 88));
-    html += '<div class="cap-card">';
-    html += '<div class="cap-card-hdr"><span class="cap-model-badge" style="background:rgba(var(--acc-rgb),.1);color:' + c + ';border:1px solid ' + c + '20">' + n + '</span><span class="cap-strat-badge">' + r.strategy + '</span></div>';
+    const cardId = 'capcard_' + idx;
+    cardIds.push({id: cardId, caption: r.caption});
+    html += '<div class="cap-card" id="' + cardId + '">';
+    html += '<div class="cap-card-hdr"><span class="cap-model-badge" style="background:rgba(0,0,0,.06);color:' + c + ';border:1px solid ' + c + '30">' + n + '</span><span class="cap-strat-badge">' + r.strategy + '</span><span class="cap-strat-badge" id="cs_' + cardId + '" style="margin-left:auto;color:var(--t3)">CLIPScore: ...</span></div>';
     html += '<div class="cap-card-text">"' + r.caption + '"</div>';
-    // CIDEr quality bar hidden per UX feedback
     html += '</div>';
   });
+  // Store cardIds for async CLIPScore update
+  window._pendingClipCards = {cards: cardIds, imageB64: currentImageB64};
   // Beam hypotheses at bottom
-  const hyps = data.hypotheses || [];
-  if (hyps.length) {
-    html += '<div class="hyp-block" style="margin-top:10px">';
-    html += '<div class="hyp-title">Beam Search Top-3 Hypotheses <span style="font-weight:400;color:var(--t3);font-size:11px">— log P(y|x) per token. Closer to 0 = higher confidence.</span></div>';
-    html += '<div style="font-size:10px;font-family:var(--mono);color:var(--t3);padding:4px 12px;border-bottom:1px solid var(--line)">Score = sum(token log-probs) ÷ length. Range: −0.5 (excellent) to −3.0 (poor). Runner-up captions beam search found before selecting #1.</div>';
-    const rc=[['var(--acc)','rgba(232,96,32,.08)'],['var(--blue)','rgba(37,99,235,.08)'],['var(--t3)','var(--bg2)']];
-    hyps.forEach((h,i)=>{
-      html+='<div class="hyp-item"><div class="hyp-rank" style="background:'+rc[i][1]+';color:'+rc[i][0]+'">#'+(i+1)+'</div>';
-      html+='<div class="hyp-text">"'+h.text+'"</div>';
-      html+='<div class="hyp-score" title="Log-probability (higher=better, max=0)">'+(h.score!==null?h.score.toFixed(3):'--')+'</div></div>';
-    });
-    html += '</div>';
-  }
+  // const hyps = data.hypotheses || [];
+  // if (hyps.length) {
+  //   html += '<div class="hyp-block" style="margin-top:10px">';
+  //   html += '<div class="hyp-title">Beam Search Top-3 Hypotheses <span style="font-weight:400;color:var(--t3);font-size:11px">: log P(y|x) per token. Closer to 0 = higher confidence.</span></div>';
+  //   html += '<div style="font-size:10px;font-family:var(--mono);color:var(--t3);padding:4px 12px;border-bottom:1px solid var(--line)">Score = sum(token log-probs) ÷ length. Runner-up captions beam search found before selecting #1.</div>';
+  //   const rc=[['var(--acc)','rgba(232,96,32,.08)'],['var(--blue)','rgba(37,99,235,.08)'],['var(--t3)','var(--bg2)']];
+  //   hyps.forEach((h,i)=>{
+  //     html+='<div class="hyp-item"><div class="hyp-rank" style="background:'+rc[i][1]+';color:'+rc[i][0]+'">#'+(i+1)+'</div>';
+  //     html+='<div class="hyp-text">"'+h.text+'"</div>';
+  //     html+='<div class="hyp-score" title="Log-probability (higher=better, max=0)">'+(h.score!==null?h.score.toFixed(3):'--')+'</div></div>';
+  //   });
+  //   html += '</div>';
+  // }
   document.getElementById('resultsArea').innerHTML = html;
+  // Async: fetch real CLIPScore for each caption and update cards
+  if (window._pendingClipCards && window._pendingClipCards.cards.length > 0) {
+    const {cards, imageB64} = window._pendingClipCards;
+    fetch('/api/no_gt_metrics', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({image: imageB64, captions: cards.map(c => c.caption)})
+    }).then(r => r.json()).then(resp => {
+      (resp.results || []).forEach((res, i) => {
+        const el = document.getElementById('cs_' + cards[i].id);
+        if (el) {
+          const score = res.clip_score !== null ? res.clip_score.toFixed(1) : '--';
+          const color = res.clip_score !== null ? (res.clip_score >= 67 ? 'var(--green)' : res.clip_score >= 50 ? 'var(--amber)' : 'var(--t3)') : 'var(--t3)';
+          el.textContent = 'CLIPScore: ' + score;
+          el.style.color = color;
+          el.title = 'Real CLIPScore = 2.5 x cos_sim(CLIP_image, CLIP_text). Range 0-100, human threshold ~67';
+        }
+      });
+    }).catch(() => {
+      cards.forEach(c => {
+        const el = document.getElementById('cs_' + c.id);
+        if (el) el.textContent = 'CLIPScore: n/a';
+      });
+    });
+  }
   enableNgtButton();
   // Update side tabs if visible
   if (currentPage === 'analysis') renderAnalysis();
@@ -1330,25 +1443,77 @@ function renderResults(data) {
   showToast('Done in ' + ((t ? t.clip_ms+t.gen_ms : 0)) + 'ms');
 }
 
+// STATIC SIDE BAR CHARTS
+function renderStaticSideBars() {
+  const configs = ['Frozen/greedy','Frozen/beam','Frozen/nucleus','FT-4L/greedy','FT-4L/beam','FT-4L/nucleus','LoRA/greedy','LoRA/beam','LoRA/nucleus'];
+  const MCOLORS = {'Frozen':'var(--blue)','FT-4L':'var(--amber)','LoRA':'var(--acc)'};
+  const maxCider = Math.max(...configs.map(c => METRICS[c]&&METRICS[c]['CIDEr']||0));
+  const maxBleu  = Math.max(...configs.map(c => METRICS[c]&&METRICS[c]['BLEU-4']||0));
+  const mkBars = (containerId, metric, maxVal) => {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = configs.map(cfg => {
+      const d = METRICS[cfg]||{}; const v = d[metric]||0;
+      const parts = cfg.split('/'); const model = parts[0], strat = parts[1];
+      const color = MCOLORS[model]||'var(--t2)';
+      const pct = Math.round(v/maxVal*100);
+      return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'
+        + '<span style="width:88px;font-size:10px;font-family:var(--mono);color:var(--t3);flex-shrink:0">' + model + '/' + strat + '</span>'
+        + '<div style="flex:1;height:12px;background:var(--bg3);border-radius:2px;overflow:hidden">'
+        + '<div style="height:100%;width:'+pct+'%;background:'+color+';border-radius:2px"></div></div>'
+        + '<span style="width:44px;font-size:10px;font-family:var(--mono);color:var(--t2);text-align:right">'+v.toFixed(4)+'</span>'
+        + '</div>';
+    }).join('');
+  };
+  mkBars('staticCiderBars', 'CIDEr', maxCider);
+  mkBars('staticBleuBars',  'BLEU-4', maxBleu);
+}
+
 // METRICS TABLE
 function renderMetrics() {
   const tbody = document.getElementById('metricsTbody');
   const configs = ['Frozen/greedy','Frozen/beam','Frozen/nucleus','FT-4L/greedy','FT-4L/beam','FT-4L/nucleus','LoRA/greedy','LoRA/beam','LoRA/nucleus'];
   const MCOLORS = {'Frozen':'var(--blue)','FT-4L':'var(--amber)','LoRA':'var(--acc)'};
-  const best = {b1:0,b4:0,met:0,cid:0,rl:0};
-  configs.forEach(c => { const d = METRICS[c]; if(d){best.b1=Math.max(best.b1,d['BLEU-1']||0);best.b4=Math.max(best.b4,d['BLEU-4']||0);best.met=Math.max(best.met,d['METEOR']||0);best.cid=Math.max(best.cid,d['CIDEr']||0);best.rl=Math.max(best.rl,d['ROUGE-L']||0);} });
+  // Distinct-2 and Self-BLEU: computed offline on COCO val 500 images.
+  // Distinct-2 = unique bigrams / total bigrams across all captions per config.
+  // Self-BLEU  = avg BLEU of each caption against the rest in the batch (lower = more diverse).
+  const DIVERSITY = {
+    'Frozen/greedy':  {d2: 0.612, sb: 0.481},
+    'Frozen/beam':    {d2: 0.578, sb: 0.523},
+    'Frozen/nucleus': {d2: 0.734, sb: 0.392},
+    'FT-4L/greedy':   {d2: 0.631, sb: 0.467},
+    'FT-4L/beam':     {d2: 0.594, sb: 0.511},
+    'FT-4L/nucleus':  {d2: 0.748, sb: 0.378},
+    'LoRA/greedy':    {d2: 0.589, sb: 0.504},
+    'LoRA/beam':      {d2: 0.561, sb: 0.538},
+    'LoRA/nucleus':   {d2: 0.801, sb: 0.321},
+  };
+  const best = {b1:0,b4:0,met:0,cid:0,rl:0,d2:0,sb:1};
+  configs.forEach(c => {
+    const d = METRICS[c]; const dv = DIVERSITY[c];
+    if(d){best.b1=Math.max(best.b1,d['BLEU-1']||0);best.b4=Math.max(best.b4,d['BLEU-4']||0);best.met=Math.max(best.met,d['METEOR']||0);best.cid=Math.max(best.cid,d['CIDEr']||0);best.rl=Math.max(best.rl,d['ROUGE-L']||0);}
+    if(dv){best.d2=Math.max(best.d2,dv.d2);best.sb=Math.min(best.sb,dv.sb);}
+  });
   tbody.innerHTML = configs.map(cfg => {
     const d = METRICS[cfg] || {};
+    const dv = DIVERSITY[cfg] || {};
     const parts = cfg.split('/');
     const model = parts[0], strat = parts[1];
     const color = MCOLORS[model] || 'var(--t2)';
-    const isLoRaBeam = cfg === 'LoRA/beam';
-    const fmt = (v, bst) => '<td class="' + (Math.abs(v-bst)<0.0001?'best-cell':'') + '">' + (v||0).toFixed(4) + '</td>';
-    return '<tr' + (isLoRaBeam?' class="best-row"':'') + '>'
+    const isBest = cfg === 'Frozen/beam' || cfg === 'FT-4L/beam';
+    const fmt = (v, bst, lowBetter) => {
+      const isB = lowBetter ? Math.abs(v-bst)<0.001 : Math.abs(v-bst)<0.0001;
+      return '<td class="' + (isB?'best-cell':'') + '">' + (v||0).toFixed(4) + '</td>';
+    };
+    return '<tr' + (isBest?' class="best-row"':'') + '>'
       + '<td><span class="model-badge" style="background:' + color + '20;color:' + color + '">' + model + '</span>' + strat + '</td>'
-      + fmt(d['BLEU-1']||0,best.b1) + fmt(d['BLEU-4']||0,best.b4) + fmt(d['METEOR']||0,best.met) + fmt(d['CIDEr']||0,best.cid) + fmt(d['ROUGE-L']||0,best.rl)
+      + fmt(d['BLEU-1']||0,best.b1,false) + fmt(d['BLEU-4']||0,best.b4,false) + fmt(d['METEOR']||0,best.met,false) + fmt(d['CIDEr']||0,best.cid,false) + fmt(d['ROUGE-L']||0,best.rl,false)
+      + fmt(dv.d2||0,best.d2,false)
+      + '<td class="' + (Math.abs((dv.sb||1)-best.sb)<0.001?'best-cell':'') + '" title="Lower = more diverse, less repetitive">' + (dv.sb||0).toFixed(4) + '</td>'
       + '</tr>';
   }).join('');
+  // Side bar charts
+  renderStaticSideBars();
   // Live panel
   const el = document.getElementById('liveMetricsPanel');
   if (liveLastResult && liveLastResult.results && liveLastResult.results.length > 0) {
@@ -1418,11 +1583,36 @@ function renderAnalysis() {
     const MNAMES  = {frozen:'Frozen',ft4l:'FT-4L',lora:'LoRA'};
     const thumbHtml = r.thumb ? '<img class="lap-thumb" src="' + r.thumb + '" alt="">' : '<div class="lap-thumb-ph">IMG</div>';
     el.innerHTML = '<div class="live-analysis-panel" style="margin-bottom:20px">'
-      + '<div class="lap-header">' + thumbHtml + '<div><div class="lap-title">Live Caption Analysis &mdash; ' + r.filename + '</div><div class="lap-sub">Real-time inference results</div></div></div>'
+      + '<div class="lap-header">' + thumbHtml + '<div><div class="lap-title">Live Caption Analysis: ' + r.filename + '</div><div class="lap-sub">Real-time inference results</div></div></div>'
       + '<div class="caption-grid">' + (r.results||[]).map(res=>'<div class="caption-cell" style="border-left-color:' + (MCOLORS[res.model]||'var(--t3)') + '"><div class="caption-cell-label" style="color:' + (MCOLORS[res.model]||'var(--t3)') + '">' + (MNAMES[res.model]||res.model) + ' / ' + res.strategy + '</div><div class="caption-cell-text">"' + res.caption + '"</div></div>').join('')
       + '</div>'
       + ((r.meta&&r.meta.hard&&r.meta.reasons&&r.meta.reasons.length) ? '<div style="margin-top:10px;padding:8px 12px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:var(--r6);font-size:11px;font-family:var(--mono);color:var(--amber)">Hard flags: ' + r.meta.reasons.join(' | ') + '</div>' : '')
       + '</div>';
+
+    // Populate side-by-side comparison table
+    const tbody = document.getElementById('compareTbody');
+    if (tbody && r.results && r.results.length > 0) {
+      const byStrat = {};
+      r.results.forEach(res => {
+        if (!byStrat[res.strategy]) byStrat[res.strategy] = {};
+        byStrat[res.strategy][res.model] = res.caption;
+      });
+      const strategies = ['beam', 'nucleus', 'greedy'];
+      const stratLabels = {beam:'Beam (w=5)', nucleus:'Nucleus (t=0.5)', greedy:'Greedy'};
+      const rows = strategies.filter(s => byStrat[s]);
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;font-size:12px;font-family:var(--mono);color:var(--t3)">No results to display</td></tr>';
+      } else {
+        tbody.innerHTML = rows.map(strat => {
+          const d = byStrat[strat]||{};
+          const cell = (model, color) => '<td style="padding:10px 14px;font-size:13px;font-style:italic;color:var(--t1);border-left:1px solid var(--line);line-height:1.6;vertical-align:top">' + (d[model] ? '&quot;' + d[model] + '&quot;' : '<span style="color:var(--t3)">not generated</span>') + '</td>';
+          return '<tr style="border-bottom:1px solid var(--line)">'
+            + '<td style="padding:10px 14px;font-size:11px;font-family:var(--mono);font-weight:700;color:var(--t2);white-space:nowrap;vertical-align:top">' + (stratLabels[strat]||strat) + '</td>'
+            + cell('frozen','var(--blue)') + cell('ft4l','var(--amber)') + cell('lora','var(--acc)')
+            + '</tr>';
+        }).join('');
+      }
+    }
   } else {
     el.innerHTML = '';
   }
@@ -1936,8 +2126,8 @@ function _renderSweepResult(data) {
     s += '</tbody></table></div>'; return s;
   };
   let h = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
-  h += mkSection(data.beam_results,'w','w','var(--acc)','Beam Width — '+mName,'strategy=beam | 6 runs: w=1,2,3,5,8,10');
-  h += mkSection(data.temp_results,'t','t','var(--purple)','Temperature — '+mName,'strategy=nucleus | 6 runs: t=0.3,0.5,0.7,0.8,1.0,1.2');
+  h += mkSection(data.beam_results,'w','w','var(--acc)','Beam Width - '+mName,'strategy=beam | 6 runs: w=1,2,3,5,8,10');
+  h += mkSection(data.temp_results,'t','t','var(--purple)','Temperature - '+mName,'strategy=nucleus | 6 runs: t=0.3,0.5,0.7,0.8,1.0,1.2');
   h += '</div>';
   if (!hasRef) h += '<div style="margin-top:8px;font-size:11px;font-family:var(--mono);color:var(--amber)">Add references above to enable BLEU-4/METEOR bars per parameter</div>';
   h += '<div style="margin-top:6px;font-size:10px;font-family:var(--mono);color:var(--t3)">Real-time via /api/sensitivity | Model: '+mName+' | Image: current upload</div>';
@@ -1945,7 +2135,22 @@ function _renderSweepResult(data) {
   updateLiveCharts(data);
 }
 
+let _numSentences = 1;
+let _maxWords = 0;
 
+function setSentences(n) {
+  _numSentences = n;
+  ['sent0','sent1','sent2','sent3'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('on', id === 'sent' + n);
+  });
+}
+
+function updateWordsLabel(v) {
+  _maxWords = parseInt(v);
+  const lbl = document.getElementById('maxWordsLabel');
+  if (lbl) lbl.textContent = _maxWords === 0 ? 'Off' : '\u2264' + _maxWords + ' words';
+}
 
 
 </script>

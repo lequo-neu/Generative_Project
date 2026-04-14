@@ -10,14 +10,15 @@ Usage (from project root, inside venv):
     demo/run.sh
 
 Endpoints:
-    GET  /              → serves index.html
-    POST /api/caption   → accepts base64 image, returns captions + metadata
-    GET  /api/status    → returns model load status
+    GET  /              -> serves index.html
+    POST /api/caption   -> accepts base64 image, returns captions + metadata
+    GET  /api/status    -> returns model load status
+    POST /api/evaluate  -> BLEU / METEOR / ROUGE-L / Distinct-2 / Self-BLEU
+    POST /api/no_gt_metrics -> CLIPScore, perplexity, grammar (reference-free)
+    POST /api/sensitivity   -> beam-width + temperature sweep
 """
 
 # ── Step 1: set HF offline env vars BEFORE importing transformers ─────────────
-# transformers reads os.environ once at import time. Setting TRANSFORMERS_OFFLINE
-# after 'from transformers import ...' has no effect — must be set first.
 import os
 import sys
 from pathlib import Path
@@ -43,11 +44,11 @@ if _is_cached("openai/clip-vit-base-patch32") and _is_cached("gpt2"):
     os.environ["TRANSFORMERS_OFFLINE"] = "1"
     os.environ["HF_DATASETS_OFFLINE"]   = "1"
     os.environ["HF_HUB_OFFLINE"]        = "1"
-    print("[demo] HF cache found — offline mode ON (no HTTP requests to HuggingFace)")
+    print("[demo] HF cache found — offline mode ON")
 else:
     print("[demo] Cache incomplete — will download missing models on first run")
 
-# ── Step 2: safe to import transformers now (offline flag active) ─────────────
+# ── Step 2: safe to import transformers now ───────────────────────────────────
 import base64
 import re
 import io
@@ -81,7 +82,7 @@ GPT2_MODEL_NAME = "gpt2"
 PREFIX_LENGTH   = 10
 CLIP_DIM        = 512
 GPT2_DIM        = 768
-MAX_NEW_TOKENS  = 30   # shorter = cleaner; repetition loops cut off earlier
+MAX_NEW_TOKENS  = 30
 
 CHECKPOINTS = {
     "frozen": PROJECT_ROOT / "outputs" / "checkpoints" / "best_model.pt",
@@ -99,8 +100,6 @@ else:
 logger.info(f"Device: {DEVICE}")
 
 # ── TrainingConfig stub ───────────────────────────────────────────────────────
-# Checkpoints were saved inside a Jupyter notebook where TrainingConfig was
-# defined in __main__.  We register a stub so torch.load can unpickle them.
 @dataclass
 class TrainingConfig:
     """Stub that matches the fields used in milestone2 checkpoints."""
@@ -122,7 +121,6 @@ class TrainingConfig:
     log_interval:       int   = 50
     seed:               int   = 42
     device:             str   = DEVICE
-    # Paths (not needed for inference, but must be pickle-able)
     project_root:       str   = str(PROJECT_ROOT)
     data_raw_dir:       str   = ""
     data_processed_dir: str   = ""
@@ -130,13 +128,12 @@ class TrainingConfig:
     checkpoints_dir:    str   = str(PROJECT_ROOT / "outputs" / "checkpoints")
     samples_dir:        str   = str(PROJECT_ROOT / "outputs" / "samples")
 
-# Register stub in __main__ so pickle finds it when loading old checkpoints
 _main_module = sys.modules.get("__main__", types.ModuleType("__main__"))
 if not hasattr(_main_module, "TrainingConfig"):
     _main_module.TrainingConfig = TrainingConfig
     sys.modules["__main__"] = _main_module
 
-# ── Model architecture (must match milestone2 exactly) ───────────────────────
+# ── Model architecture ────────────────────────────────────────────────────────
 class ProjectionHead(nn.Module):
     def __init__(self, clip_dim=512, gpt2_dim=768, prefix_length=10):
         super().__init__()
@@ -155,36 +152,8 @@ class ProjectionHead(nn.Module):
         return self.projection(x).view(-1, self.prefix_length, self.gpt2_dim)
 
 
-def _clean_caption(text: str) -> str:
-    """
-    Truncate caption to exactly 1 complete sentence.
-    COCO ground truth captions are all single sentences (avg 13 words).
-    Generated text often adds a 2nd sentence which is repetition or web artifact.
-    A sentence ends at . ! ? followed by space or end of string.
-    If no sentence boundary found, truncate at last word within 100 chars.
-    """
-    text = text.strip()
-    if not text:
-        return text
-
-    # Find first sentence end (period/!/? followed by space or end of string)
-    m = re.search(r'[.!?](?=\s|$)', text)
-
-    if m:
-        # Return exactly the first complete sentence
-        return text[:m.end()].strip()
-    else:
-        # No sentence boundary — text is mid-sentence
-        # Truncate to last complete word within 100 chars
-        if len(text) > 100:
-            truncated = text[:100]
-            last_space = truncated.rfind(' ')
-            if last_space > 40:
-                return truncated[:last_space].strip() + '.'
-        return text
-
-
 class ClipCaptionModel(nn.Module):
+    """CLIP prefix conditioning + GPT-2 decoder."""
     def __init__(self, gpt2_model_name: str, tokenizer, prefix_length: int = 10):
         super().__init__()
         self.prefix_length = prefix_length
@@ -200,35 +169,31 @@ class ClipCaptionModel(nn.Module):
         num_beams: int = 5,
         temperature: float = 0.5,
         top_p: float = 0.9,
-        max_length: int = MAX_NEW_TOKENS,
+        max_length: int = 40,
     ) -> str:
         self.eval()
         if embedding.dim() == 1:
             embedding = embedding.unsqueeze(0)
         embedding = embedding.to(next(self.parameters()).device)
-        prefix = self.projection(embedding)  # (1, 10, 768)
+        prefix = self.projection(embedding)
 
         gen_kwargs: dict = dict(
             inputs_embeds=prefix,
             max_new_tokens=max_length,
-            min_new_tokens=5,
+            min_new_tokens=3,
             pad_token_id=tokenizer_global.pad_token_id,
             eos_token_id=tokenizer_global.eos_token_id,
-            no_repeat_ngram_size=4,        # 3→4: harder to repeat 4-grams
-            forced_eos_token_id=tokenizer_global.eos_token_id,
+            no_repeat_ngram_size=3,
         )
         if strategy == "greedy":
-            gen_kwargs.update(
-                do_sample=False,
-                repetition_penalty=1.5,    # raised from 1.2 — suppresses GPT-2 web artifacts
-            )
+            gen_kwargs.update(do_sample=False, repetition_penalty=1.5)
         elif strategy == "beam":
             gen_kwargs.update(
                 do_sample=False,
                 num_beams=num_beams,
                 early_stopping=True,
                 no_repeat_ngram_size=2,
-                length_penalty=1.0,        # neutral — don't over-penalise shorter captions
+                length_penalty=1.0,
             )
         elif strategy == "nucleus":
             gen_kwargs.update(
@@ -236,19 +201,19 @@ class ClipCaptionModel(nn.Module):
                 top_p=top_p,
                 temperature=temperature,
                 top_k=0,
-                repetition_penalty=1.3,    # light penalty for nucleus too
+                repetition_penalty=1.3,
             )
 
         output_ids = self.gpt2.generate(**gen_kwargs)
         raw = tokenizer_global.decode(output_ids[0], skip_special_tokens=True).strip()
-        return _clean_caption(raw)
+        return raw
 
     @torch.no_grad()
     def generate_with_scores(
         self,
         embedding: torch.Tensor,
         num_beams: int = 8,
-        max_length: int = MAX_NEW_TOKENS,
+        max_length: int = 40,
     ) -> list:
         """Return top-3 beam hypotheses with log-probability scores."""
         self.eval()
@@ -279,25 +244,62 @@ class ClipCaptionModel(nn.Module):
         ]
 
 
-# ── Global state ──────────────────────────────────────────────────────────────
-tokenizer_global: Optional[GPT2Tokenizer] = None
-clip_processor:   Optional[CLIPProcessor] = None
-clip_model_obj:   Optional[CLIPModel]     = None
-models: dict = {}   # {"frozen": ClipCaptionModel, ...}
-status: dict = {"ready": False, "message": "Loading models…", "device": DEVICE}
+def _split_sentences(text):
+    parts = re.split(r"(?<=[.!?])\s+", text.strip())
+    return [s.strip() for s in parts if s.strip()]
+
+
+def _truncate_words(text, max_words):
+    words = text.split()
+    if len(words) <= max_words:
+        return text
+    t = " ".join(words[:max_words])
+    return t if t[-1] in ".!?" else t.rstrip(",;:") + "..."
+
+
+def _clean_caption(text, num_sentences=1, max_words=None):
+    text = text.strip()
+    if not text:
+        return text
+    if num_sentences and num_sentences > 0:
+        sents = _split_sentences(text)
+        if sents:
+            text = " ".join(sents[:num_sentences])
+            if text[-1] not in ".!?":
+                text += "."
+        elif len(text) > 120:
+            t = text[:120]
+            sp = t.rfind(" ")
+            text = (t[:sp].strip() if sp > 40 else t) + "."
+    if max_words and max_words > 0:
+        text = _truncate_words(text, max_words)
+    return text.strip()
+
+
+# ── Module-level globals ──────────────────────────────────────────────────────
+tokenizer_global = None
+clip_processor   = None
+clip_model_obj   = None
+models           = {}
+status           = {"ready": False, "message": "Starting up..."}
 
 
 def load_all_models() -> None:
     global tokenizer_global, clip_processor, clip_model_obj, models, status
 
+    _g = globals()
+    if 'status'           not in _g or _g['status']           is None: _g['status']           = {"ready": False, "message": "Initializing..."}
+    if 'models'           not in _g or _g['models']           is None: _g['models']           = {}
+    if 'tokenizer_global' not in _g or _g['tokenizer_global'] is None: _g['tokenizer_global'] = None
+    if 'clip_processor'   not in _g or _g['clip_processor']   is None: _g['clip_processor']   = None
+    if 'clip_model_obj'   not in _g or _g['clip_model_obj']   is None: _g['clip_model_obj']   = None
+
     try:
-        # 1. GPT-2 tokenizer
-        logger.info("Loading GPT-2 tokenizer…")
+        logger.info("Loading GPT-2 tokenizer...")
         tokenizer_global = GPT2Tokenizer.from_pretrained(GPT2_MODEL_NAME)
         tokenizer_global.pad_token = tokenizer_global.eos_token
 
-        # 2. CLIP (uses local cache if TRANSFORMERS_OFFLINE=1)
-        logger.info("Loading CLIP ViT-B/32…")
+        logger.info("Loading CLIP ViT-B/32...")
         clip_processor = CLIPProcessor.from_pretrained(CLIP_MODEL_NAME)
         clip_model_obj = CLIPModel.from_pretrained(CLIP_MODEL_NAME).to(DEVICE)
         clip_model_obj.eval()
@@ -305,14 +307,11 @@ def load_all_models() -> None:
             p.requires_grad = False
         logger.info("CLIP loaded")
 
-        # 3. Load GPT-2 base weights ONCE then reuse across all 3 checkpoints.
-        # This avoids calling GPT2LMHeadModel.from_pretrained() 3 times.
-        # deepcopy of the template is ~3x faster than from_pretrained per model.
         import copy
-        logger.info("Pre-loading GPT-2 base weights (shared across all checkpoints)…")
+        logger.info("Pre-loading GPT-2 base weights (shared across all checkpoints)...")
         t_base = time.time()
         _base_model_template = ClipCaptionModel(GPT2_MODEL_NAME, tokenizer_global, PREFIX_LENGTH)
-        _base_state = _base_model_template.state_dict()  # clean reference weights
+        _base_state = _base_model_template.state_dict()
         logger.info(f"  GPT-2 base ready in {time.time() - t_base:.1f}s")
 
         for key, ckpt_path in CHECKPOINTS.items():
@@ -320,54 +319,28 @@ def load_all_models() -> None:
                 logger.warning(f"Checkpoint not found, skipping: {ckpt_path}")
                 continue
 
-            logger.info(f"Loading {key} from {ckpt_path.name}…")
+            logger.info(f"Loading {key} from {ckpt_path.name}...")
             t0 = time.time()
-
-            # torch.load with weights_only=False needs TrainingConfig in scope.
             ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
-
-            # Accept both {'model_state_dict': ...} and raw state_dict
             state = ckpt.get("model_state_dict", ckpt) if isinstance(ckpt, dict) else ckpt
-
-            # Strip DataParallel prefix if present
             state = {k.replace("module.", ""): v for k, v in state.items()}
-
-            # LoRA checkpoints from PEFT can appear in 3 formats:
-            #
-            # Pattern A - PEFT unmerged (get_peft_model + save_pretrained):
-            #   'gpt2.base_model.model.transformer.h.0.attn.c_attn.lora_A.weight'
-            #   'gpt2.base_model.model.transformer.h.0.attn.c_attn.base_layer.weight'
-            #   => remap: strip 'base_model.model.', keep base_layer weights as real weights
-            #
-            # Pattern B - merged (merge_and_unload before save):
-            #   'gpt2.transformer.h.0.attn.c_attn.weight'  (standard GPT-2 keys)
-            #   => use directly
-            #
-            # Pattern C - inline LoRA without base_model wrapper:
-            #   'gpt2.transformer.h.0.attn.c_attn.lora_A.weight'
-            #   => drop lora_A/B keys, keep rest
 
             has_base_model = any('base_model.model.' in k for k in state)
             has_base_layer = any('base_layer.' in k for k in state)
             has_lora_keys  = any('lora_A' in k or 'lora_B' in k for k in state)
 
             if has_base_model or has_base_layer:
-                # Pattern A - full PEFT unmerged format
                 clean = {}
                 for k, v in state.items():
                     k2 = k
-                    # Strip PEFT base_model.model. wrapper prefix
                     k2 = k2.replace('gpt2.base_model.model.', 'gpt2.')
-                    # Skip LoRA adapter weight tensors
                     if 'lora_A' in k2 or 'lora_B' in k2:
                         continue
-                    # base_layer holds original weights - strip the .base_layer. wrapper
                     k2 = k2.replace('.base_layer.', '.')
                     clean[k2] = v
                 state = clean
                 logger.info(f"  {key}: PEFT format -> remapped {len(state)} keys")
             elif has_lora_keys:
-                # Pattern C - inline lora tensors, drop them
                 state = {k: v for k, v in state.items()
                          if 'lora_A' not in k and 'lora_B' not in k
                          and 'base_layer' not in k}
@@ -375,15 +348,11 @@ def load_all_models() -> None:
             else:
                 logger.info(f"  {key}: standard format -> {len(state)} keys")
 
-            # Merge: start from clean base weights, overlay checkpoint.
-            # This correctly fills any frozen layers not saved in the LoRA checkpoint.
             merged_state = dict(_base_state)
             merged_state.update(state)
 
             import copy
             m = copy.deepcopy(_base_model_template)
-            # strict=False: base_layer remapping may leave a few mismatches;
-            # all real model weights are correctly present via merged_state.
             missing, unexpected = m.load_state_dict(merged_state, strict=False)
             real_missing    = [k for k in missing    if 'lora' not in k.lower()]
             real_unexpected = [k for k in unexpected if 'lora' not in k.lower()
@@ -422,18 +391,12 @@ def load_all_models() -> None:
 def encode_image(pil_img: Image.Image) -> torch.Tensor:
     if pil_img.mode != "RGB":
         pil_img = pil_img.convert("RGB")
-    # Use vision_model directly to get the pooled output as a plain tensor,
-    # then apply the visual projection — identical to get_image_features() but
-    # guaranteed to return a tensor regardless of transformers version.
     inputs = clip_processor(images=pil_img, return_tensors="pt").to(DEVICE)
-    vision_out = clip_model_obj.vision_model(
-        pixel_values=inputs["pixel_values"]
-    )
-    # pooler_output is the [CLS] token embedding — always a plain tensor
-    pooled = vision_out.pooler_output          # (1, 768)
-    emb = clip_model_obj.visual_projection(pooled)  # (1, 512)
-    emb = emb / emb.norm(dim=-1, keepdim=True)      # L2-normalize
-    return emb.squeeze(0).cpu()                      # (512,)
+    vision_out = clip_model_obj.vision_model(pixel_values=inputs["pixel_values"])
+    pooled = vision_out.pooler_output
+    emb = clip_model_obj.visual_projection(pooled)
+    emb = emb / emb.norm(dim=-1, keepdim=True)
+    return emb.squeeze(0).cpu()
 
 
 # ── Normalization metadata ────────────────────────────────────────────────────
@@ -443,12 +406,12 @@ def normalization_meta(pil_img: Image.Image) -> dict:
     rw, rh = round(w * scale), round(h * scale)
     cx, cy = (rw - 224) // 2, (rh - 224) // 2
     reasons = []
-    if w < 64 or h < 64:                         reasons.append(f"Very small: {w}×{h}")
-    if w > 4096 or h > 4096:                     reasons.append(f"Very large: {w}×{h}")
+    if w < 64 or h < 64:                         reasons.append(f"Very small: {w}x{h}")
+    if w > 4096 or h > 4096:                     reasons.append(f"Very large: {w}x{h}")
     if max(w, h) / max(min(w, h), 1) > 2.5:      reasons.append(f"Extreme ratio {max(w,h)/max(min(w,h),1):.1f}:1")
     return {
-        "original": f"{w}×{h}",
-        "resized":  f"{rw}×{rh}",
+        "original": f"{w}x{h}",
+        "resized":  f"{rw}x{rh}",
         "crop":     f"{cx},{cy}+224",
         "hard":     len(reasons) > 0,
         "reasons":  reasons,
@@ -459,13 +422,70 @@ def normalization_meta(pil_img: Image.Image) -> dict:
 app = Flask(__name__, static_folder=str(DEMO_DIR))
 
 
+# ── Reference-free metrics endpoint ──────────────────────────────────────────
+# ── Diversity metrics endpoint (Distinct-2, Self-BLEU) ──────────────────────
+@app.route("/api/diversity_metrics", methods=["POST"])
+def diversity_metrics():
+    """
+    Compute Distinct-2 and Self-BLEU for a list of captions.
+    Body: { "captions": [str, ...] }
+    Returns: { distinct2: float, self_bleu: float, n: int }
+
+    Distinct-2 = unique bigrams / total bigrams across all captions.
+    Self-BLEU  = average BLEU-1 of each caption against all others.
+                 Lower Self-BLEU = more diverse captions.
+    """
+    data = request.get_json(force=True) or {}
+    captions = [c.strip().lower() for c in data.get("captions", []) if c.strip()]
+
+    if len(captions) < 2:
+        return jsonify({"error": "need at least 2 captions"}), 400
+
+    import nltk
+    from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
+    for resource in ["punkt"]:
+        try:
+            nltk.data.find(f"tokenizers/{resource}")
+        except LookupError:
+            nltk.download(resource, quiet=True)
+
+    tokenized = [nltk.word_tokenize(c) for c in captions]
+
+    # Distinct-2
+    all_bigrams, unique_bigrams = [], set()
+    for tokens in tokenized:
+        for i in range(len(tokens) - 1):
+            bg = (tokens[i], tokens[i+1])
+            all_bigrams.append(bg)
+            unique_bigrams.add(bg)
+    distinct2 = len(unique_bigrams) / max(len(all_bigrams), 1)
+
+    # Self-BLEU: each caption vs all others
+    sf = SmoothingFunction().method1
+    self_bleu_scores = []
+    for i, hyp in enumerate(tokenized):
+        refs = [t for j, t in enumerate(tokenized) if j != i]
+        try:
+            score = sentence_bleu(refs, hyp, weights=(1, 0, 0, 0), smoothing_function=sf)
+            self_bleu_scores.append(score)
+        except Exception:
+            pass
+    self_bleu = sum(self_bleu_scores) / max(len(self_bleu_scores), 1)
+
+    return jsonify({
+        "distinct2":  round(distinct2, 4),
+        "self_bleu":  round(self_bleu,  4),
+        "n_captions": len(captions),
+        "n_bigrams":  len(all_bigrams),
+        "n_unique":   len(unique_bigrams),
+    })
 
 
 @app.route("/api/no_gt_metrics", methods=["POST"])
 def no_gt_metrics():
-    """Reference-free metrics: CLIPScore, Sentence-BERT proxy,
+    """Reference-free metrics: CLIPScore, CLIP text consistency,
     Perplexity (GPT-2), Grammar score (heuristic)."""
-    import base64, math, re
+    import math
     from io import BytesIO
     data = request.get_json(force=True)
     img_b64   = data.get("image", "")
@@ -478,87 +498,63 @@ def no_gt_metrics():
         entry = {"caption": cap, "clip_score": None,
                  "sbert_sim": None, "perplexity": None, "grammar_score": None}
 
-        # --- CLIPScore: cos_sim(image_embed, text_embed) * 2.5 ---------------
+        # CLIPScore: cos_sim(image_embed, text_embed) * 100
         try:
             from transformers import CLIPProcessor, CLIPModel
-            import torch
             if not hasattr(app, "_clip_for_score"):
-                app._clip_for_score = CLIPModel.from_pretrained(
-                    "openai/clip-vit-base-patch32")
-                app._clip_proc_score = CLIPProcessor.from_pretrained(
-                    "openai/clip-vit-base-patch32")
+                app._clip_for_score = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+                app._clip_proc_score = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
                 app._clip_for_score.eval()
             mdl  = app._clip_for_score
             proc = app._clip_proc_score
-
-            # Decode image
             raw = base64.b64decode(img_b64.split(",")[-1])
             pil = Image.open(BytesIO(raw)).convert("RGB")
-
             inputs = proc(text=[cap], images=pil, return_tensors="pt",
                           padding=True, truncation=True, max_length=77)
             with torch.no_grad():
                 out  = mdl(**inputs)
-                i_e  = out.image_embeds  / out.image_embeds.norm(dim=-1, keepdim=True)
-                t_e  = out.text_embeds   / out.text_embeds.norm(dim=-1, keepdim=True)
+                i_e  = out.image_embeds / out.image_embeds.norm(dim=-1, keepdim=True)
+                t_e  = out.text_embeds  / out.text_embeds.norm(dim=-1, keepdim=True)
                 sim  = (i_e * t_e).sum().item()
             entry["clip_score"] = round(max(0.0, sim) * 100, 1)
         except Exception as e:
             entry["clip_score"] = None
 
-        # --- Perplexity via GPT-2 (lower = more fluent) ----------------------
+        # Perplexity via GPT-2 (lower = more fluent)
         try:
-            import torch
-            from transformers import GPT2LMHeadModel, GPT2Tokenizer
             if not hasattr(app, "_ppl_tok"):
                 app._ppl_tok = GPT2Tokenizer.from_pretrained("gpt2")
                 app._ppl_tok.pad_token = app._ppl_tok.eos_token
                 app._ppl_mdl = GPT2LMHeadModel.from_pretrained("gpt2")
                 app._ppl_mdl.eval()
-            tok = app._ppl_tok
-            ppl_mdl = app._ppl_mdl
-            ids = tok.encode(cap, return_tensors="pt")
+            ids = app._ppl_tok.encode(cap, return_tensors="pt")
             with torch.no_grad():
-                loss = ppl_mdl(ids, labels=ids).loss
-            ppl = math.exp(loss.item())
-            entry["perplexity"] = round(ppl, 1)
-        except Exception as e:
+                loss = app._ppl_mdl(ids, labels=ids).loss
+            entry["perplexity"] = round(math.exp(loss.item()), 1)
+        except Exception:
             entry["perplexity"] = None
 
-        # --- Text-Text similarity via CLIP text encoder (no extra download) ---
-        # Measures cosine similarity between the generated caption and
-        # visual template paraphrases using the CLIP text encoder already
-        # loaded by the main app. High value = caption is semantically
-        # consistent across different phrasings.
+        # CLIP text consistency: cosine sim among 3 paraphrases
         try:
-            import torch
             from transformers import CLIPTokenizer
             if clip_model_obj is None:
                 raise RuntimeError("CLIP not loaded yet")
-            # Use CLIPTokenizer directly (text-only, no image required)
             if not hasattr(app, "_clip_tokenizer"):
-                app._clip_tokenizer = CLIPTokenizer.from_pretrained(
-                    "openai/clip-vit-base-patch32"
-                )
+                app._clip_tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
             tokenizer_clip = app._clip_tokenizer
             templates = [
                 "a photo of " + cap,
                 "an image showing " + cap,
                 "this picture shows " + cap,
             ]
-            enc = tokenizer_clip(
-                templates, return_tensors="pt",
-                padding=True, truncation=True, max_length=77
-            )
-            # MPS does not support all CLIP text encoder ops.
-            # Extract only the text encoder weights and run on CPU.
+            enc = tokenizer_clip(templates, return_tensors="pt",
+                                 padding=True, truncation=True, max_length=77)
             enc_cpu = {k: v.to("cpu") for k, v in enc.items()}
             text_model = clip_model_obj.text_model.to("cpu")
-            proj      = clip_model_obj.text_projection.to("cpu")
+            proj       = clip_model_obj.text_projection.to("cpu")
             with torch.no_grad():
                 out        = text_model(**enc_cpu)
                 text_feats = proj(out.pooler_output)
-            # Move sub-modules back to original device
             clip_model_obj.text_model.to(DEVICE)
             clip_model_obj.text_projection.to(DEVICE)
             text_feats = text_feats / text_feats.norm(dim=-1, keepdim=True)
@@ -572,24 +568,20 @@ def no_gt_metrics():
             logger.warning(f"CLIP text consistency error: {e}")
             entry["sbert_sim"] = None
 
-        # --- Grammar score: heuristic (sentence structure checks) -----------
+        # Grammar score: heuristic
         try:
             tokens = cap.lower().split()
             n = len(tokens)
             score = 100.0
-            # Penalize very short captions
             if n < 4:
                 score -= 20
-            # Penalize if no verb-like words
             verb_hints = {"is","are","was","were","has","have","playing",
                           "sitting","standing","holding","walking","running",
                           "eating","looking","wearing","riding","driving"}
             if not any(t in verb_hints for t in tokens):
                 score -= 15
-            # Penalize repetition
             if len(set(tokens)) / max(n, 1) < 0.6:
                 score -= 10
-            # Penalize URLs or non-English tokens
             if any(re.search(r"http|www|\d{4,}", t) for t in tokens):
                 score -= 25
             entry["grammar_score"] = round(max(0, min(100, score)), 0)
@@ -600,6 +592,8 @@ def no_gt_metrics():
 
     return jsonify({"results": results})
 
+
+# ── Serve index.html ──────────────────────────────────────────────────────────
 @app.route("/")
 def index():
     resp = send_from_directory(str(DEMO_DIR), "index.html")
@@ -619,6 +613,7 @@ def api_status():
     return jsonify(status)
 
 
+# ── Caption generation endpoint ───────────────────────────────────────────────
 @app.route("/api/caption", methods=["POST"])
 def api_caption():
     if not status["ready"]:
@@ -628,7 +623,6 @@ def api_caption():
     if not data or "image" not in data:
         return jsonify({"error": "Missing 'image' field"}), 400
 
-    # Decode image from base64 data-url or raw base64
     try:
         img_b64 = data["image"]
         if img_b64.startswith("data:"):
@@ -637,14 +631,19 @@ def api_caption():
     except Exception as e:
         return jsonify({"error": f"Invalid image: {e}"}), 400
 
-    # Parameters
-    model_key   = data.get("model", "lora")
-    strategy    = data.get("strategy", "beam")
-    beam_width  = int(data.get("beam_width", 5))
-    temperature = float(data.get("temperature", 0.5))
-    top_p       = float(data.get("top_p", 0.9))
+    model_key     = data.get("model", "lora")
+    strategy      = data.get("strategy", "beam")
+    beam_width    = int(data.get("beam_width", 5))
+    temperature   = float(data.get("temperature", 0.5))
+    top_p         = float(data.get("top_p", 0.9))
+    num_sentences = int(data.get("num_sentences", 1))
+    max_words_raw = int(data.get("max_words", 0))
+    _tok_map = {0: 120, 1: 40, 2: 90, 3: 130}
+    max_tokens = _tok_map.get(num_sentences, 40)
+    if max_words_raw > 0:
+        max_tokens = max(max_tokens, min(150, int(max_words_raw * 1.5)))
 
-    # Create small thumbnail for display in other tabs
+    # Thumbnail for display in other tabs
     thumb_b64 = ""
     try:
         thumb = pil_img.copy()
@@ -657,50 +656,47 @@ def api_caption():
 
     meta = normalization_meta(pil_img)
 
-    # CLIP encode
     t_clip = time.time()
     embedding = encode_image(pil_img)
     clip_ms = round((time.time() - t_clip) * 1000)
 
-    # Caption generation
     results = []
     t_gen = time.time()
 
     model_keys = list(models.keys()) if model_key == "all" else [model_key]
     strategies = ["beam", "nucleus", "greedy"] if strategy == "all" else [strategy]
 
-    CONF_BASE = {"frozen": 0.071, "ft4l": 0.075, "lora": 0.070}
-    STRAT_MULT = {"beam": 1.0, "nucleus": 0.72, "greedy": 0.08}
-
     for mk in model_keys:
         m = models.get(mk)
         if m is None:
             for st in strategies:
                 results.append({"model": mk, "strategy": st,
-                                 "caption": f"[{mk} not loaded]", "confidence": 0})
+                                 "caption": f"[{mk} not loaded]"})
             continue
         for st in strategies:
             try:
-                caption = m.generate(
+                raw_cap = m.generate(
                     embedding,
                     strategy=st,
                     num_beams=beam_width,
                     temperature=temperature,
                     top_p=top_p,
+                    max_length=max_tokens,
                 )
-                b4   = CONF_BASE.get(mk, 0.070)
-                mult = STRAT_MULT.get(st, 1.0)
-                conf = min(95, round(b4 * mult * 420 + 32))
-                results.append({"model": mk, "strategy": st,
-                                 "caption": caption, "confidence": conf})
+                caption = _clean_caption(
+                    raw_cap,
+                    num_sentences=num_sentences,
+                    max_words=max_words_raw if max_words_raw > 0 else None,
+                )
+                results.append({"model": mk, "strategy": st, "caption": caption})
             except Exception as e:
                 logger.exception(f"Generate failed for {mk}/{st}")
                 results.append({"model": mk, "strategy": st,
-                                 "caption": f"[Error: {e}]", "confidence": 0})
+                                 "caption": f"[Error: {e}]"})
 
     gen_ms = round((time.time() - t_gen) * 1000)
 
-    # Top-3 beam hypotheses (for hard images and beam strategy)
+    # Top-3 beam hypotheses
     hypotheses = []
     best_key = "lora" if "lora" in models else (model_keys[0] if model_keys else None)
     if best_key and (meta["hard"] or strategy in ("beam", "all")):
@@ -721,18 +717,29 @@ def api_caption():
     })
 
 
-# ── Real-time per-image evaluation endpoint ─────────────────────────────────────
+# ── Evaluation endpoint (with Distinct-2 and Self-BLEU) ──────────────────────
 @app.route("/api/evaluate", methods=["POST"])
 def api_evaluate():
     """
-    Compute BLEU-1, BLEU-4, METEOR, ROUGE-L for a single generated caption
-    against one or more reference captions.
-    Body: { "hypothesis": str, "references": [str, ...] }
-    Returns: { bleu1, bleu4, meteor, rouge_l, details }
+    Compute BLEU-1, BLEU-4, METEOR, ROUGE-L, Distinct-2, Self-BLEU
+    for a single generated caption against one or more references.
+
+    Distinct-2: ratio of unique bigrams in the hypothesis.
+    Self-BLEU:  when multiple captions are provided in 'all_hypotheses',
+                compute average BLEU of each caption against the others.
+                If only one caption provided, Self-BLEU is reported as N/A.
+
+    Body: {
+        "hypothesis": str,
+        "references": [str, ...],
+        "all_hypotheses": [str, ...]   (optional, for Self-BLEU)
+    }
     """
     data = request.get_json(force=True) or {}
-    hypothesis = data.get("hypothesis", "").strip().lower()
-    references  = [r.strip().lower() for r in data.get("references", []) if r.strip()]
+    hypothesis    = data.get("hypothesis", "").strip().lower()
+    references    = [r.strip().lower() for r in data.get("references", []) if r.strip()]
+    all_hyps_raw  = data.get("all_hypotheses", [])
+    all_hyps      = [h.strip().lower() for h in all_hyps_raw if h.strip()]
 
     if not hypothesis:
         return jsonify({"error": "hypothesis is required"}), 400
@@ -744,24 +751,19 @@ def api_evaluate():
     from nltk.translate.meteor_score import single_meteor_score
     from rouge_score import rouge_scorer
 
-    # Ensure NLTK data is available (quiet download if missing)
     for resource in ["punkt", "wordnet", "omw-1.4"]:
         try:
             nltk.data.find(f"tokenizers/{resource}" if resource == "punkt" else f"corpora/{resource}")
         except LookupError:
             nltk.download(resource, quiet=True)
 
-    hyp_tokens  = nltk.word_tokenize(hypothesis)
-    ref_tokens  = [nltk.word_tokenize(r) for r in references]
+    hyp_tokens = nltk.word_tokenize(hypothesis)
+    ref_tokens = [nltk.word_tokenize(r) for r in references]
+    sf = SmoothingFunction().method1
 
-    sf = SmoothingFunction().method1  # handles 0-count n-grams
+    bleu1 = sentence_bleu(ref_tokens, hyp_tokens, weights=(1,0,0,0), smoothing_function=sf)
+    bleu4 = sentence_bleu(ref_tokens, hyp_tokens, weights=(.25,.25,.25,.25), smoothing_function=sf)
 
-    bleu1 = sentence_bleu(ref_tokens, hyp_tokens,
-                          weights=(1, 0, 0, 0), smoothing_function=sf)
-    bleu4 = sentence_bleu(ref_tokens, hyp_tokens,
-                          weights=(0.25, 0.25, 0.25, 0.25), smoothing_function=sf)
-
-    # METEOR: average over all references, take max
     meteor_scores = []
     for ref in references:
         try:
@@ -771,36 +773,59 @@ def api_evaluate():
             pass
     meteor = max(meteor_scores) if meteor_scores else 0.0
 
-    # ROUGE-L
-    scorer = rouge_scorer.RougeScorer(["rougeL"], use_stemmer=True)
-    rouge_l_scores = [scorer.score(ref, hypothesis)["rougeL"].fmeasure for ref in references]
+    scorer_rouge = rouge_scorer.RougeScorer(["rougeL"], use_stemmer=True)
+    rouge_l_scores = [scorer_rouge.score(ref, hypothesis)["rougeL"].fmeasure for ref in references]
     rouge_l = max(rouge_l_scores) if rouge_l_scores else 0.0
 
+    # Distinct-2: unique bigrams / total bigrams in hypothesis
+    def compute_distinct2(tokens):
+        bigrams = [(tokens[i], tokens[i+1]) for i in range(len(tokens)-1)]
+        if not bigrams:
+            return 0.0
+        return round(len(set(bigrams)) / len(bigrams), 4)
+
+    distinct2 = compute_distinct2(hyp_tokens)
+
+    # Self-BLEU: average BLEU of this hypothesis against all other hypotheses
+    self_bleu = None
+    if len(all_hyps) > 1:
+        others = [h for h in all_hyps if h != hypothesis]
+        if others:
+            other_tokens = [nltk.word_tokenize(h) for h in others]
+            self_bleu = round(
+                sentence_bleu(other_tokens, hyp_tokens,
+                              weights=(.25,.25,.25,.25), smoothing_function=sf),
+                4
+            )
+
     return jsonify({
-        "bleu1":   round(bleu1,  4),
-        "bleu4":   round(bleu4,  4),
-        "meteor":  round(meteor, 4),
-        "rouge_l": round(rouge_l,4),
+        "bleu1":      round(bleu1,   4),
+        "bleu4":      round(bleu4,   4),
+        "meteor":     round(meteor,  4),
+        "rouge_l":    round(rouge_l, 4),
+        "distinct2":  distinct2,
+        "self_bleu":  self_bleu,
         "hypothesis": hypothesis,
         "n_references": len(references),
     })
 
 
-# ── Real-time sensitivity sweep endpoint ───────────────────────────────────────
+# ── Real-time sensitivity sweep endpoint ──────────────────────────────────────
 @app.route("/api/sensitivity", methods=["POST"])
 def api_sensitivity():
     """
-    Run beam-width sweep and temperature sweep on the given image embedding.
-    Body: { "image": base64_str, "model": "lora"|"frozen"|"ft4l",
-            "references": [str, ...] }
+    Run beam-width sweep and temperature sweep on the given image.
+    Body: {
+        "image": base64_str,
+        "model": "lora"|"frozen"|"ft4l",
+        "references": [str, ...]
+    }
     Returns: { beam_results: [...], temp_results: [...] }
-    Each result: { param_value, caption, bleu4, meteor, rouge_l }
     """
     if not status["ready"]:
         return jsonify({"error": "Models not ready"}), 503
 
     data = request.get_json(force=True) or {}
-
     img_b64    = data.get("image", "")
     model_key  = data.get("model", "lora")
     references = [r.strip().lower() for r in data.get("references", []) if r.strip()]
@@ -808,14 +833,13 @@ def api_sensitivity():
     if not img_b64:
         return jsonify({"error": "image is required"}), 400
 
-    # Decode image and encode with CLIP
     try:
         raw = img_b64.split(",", 1)[1] if "," in img_b64 else img_b64
         pil_img = Image.open(io.BytesIO(base64.b64decode(raw)))
     except Exception as e:
         return jsonify({"error": f"Invalid image: {e}"}), 400
 
-    embedding = encode_image(pil_img)   # (512,) cpu tensor
+    embedding = encode_image(pil_img)
 
     m = models.get(model_key) or models.get("lora") or next(iter(models.values()), None)
     if m is None:
@@ -838,22 +862,22 @@ def api_sensitivity():
     def score_caption(cap: str) -> dict:
         if not references:
             return {"bleu4": None, "meteor": None, "rouge_l": None}
-        hyp_tok = nltk.word_tokenize(cap.lower())
+        hyp_tok  = nltk.word_tokenize(cap.lower())
         ref_toks = [nltk.word_tokenize(r) for r in references]
-        b4 = sentence_bleu(ref_toks, hyp_tok,
-                           weights=(0.25, 0.25, 0.25, 0.25), smoothing_function=sf)
+        b4  = sentence_bleu(ref_toks, hyp_tok, weights=(.25,.25,.25,.25), smoothing_function=sf)
         met_scores = []
         for ref in references:
             try:
                 met_scores.append(single_meteor_score(nltk.word_tokenize(ref), hyp_tok))
             except Exception:
                 pass
-        met  = max(met_scores) if met_scores else 0.0
-        rl   = max(rouge.score(ref, cap.lower())["rougeL"].fmeasure for ref in references)
+        met = max(met_scores) if met_scores else 0.0
+        rl  = max(rouge.score(ref, cap.lower())["rougeL"].fmeasure for ref in references)
         return {"bleu4": round(b4, 4), "meteor": round(met, 4), "rouge_l": round(rl, 4)}
 
-    # Beam width sweep: w = 1,2,3,5,8,10 (fixed nucleus off)
-    BEAM_WIDTHS = [1, 2, 3, 5, 8, 10]
+    BEAM_WIDTHS  = [1, 2, 3, 5, 8, 10]
+    TEMPERATURES = [0.3, 0.5, 0.7, 0.8, 1.0, 1.2]
+
     beam_results = []
     for w in BEAM_WIDTHS:
         try:
@@ -864,8 +888,6 @@ def api_sensitivity():
             beam_results.append({"w": w, "caption": str(e),
                                   "bleu4": None, "meteor": None, "rouge_l": None})
 
-    # Temperature sweep: nucleus sampling at t = 0.3, 0.5, 0.7, 0.8, 1.0, 1.2
-    TEMPERATURES = [0.3, 0.5, 0.7, 0.8, 1.0, 1.2]
     temp_results = []
     for t in TEMPERATURES:
         try:
@@ -884,71 +906,19 @@ def api_sensitivity():
     })
 
 
-# ── Text-to-Image generation endpoint (Diffusion tab) ───────────────────────
-@app.route("/api/generate", methods=["POST"])
-def api_generate():
-    data = request.get_json(force=True) or {}
-    prompt                = data.get("prompt", "").strip()
-    steps                 = max(5,   min(150,  int(data.get("steps", 20))))
-    guidance_scale        = max(1.0, min(20.0, float(data.get("guidance_scale", 7.5))))
-    conditioning_strength = max(0.1, min(2.0,  float(data.get("conditioning_strength", 1.0))))
-    scheduler             = data.get("scheduler", "ddim")
-
-    if not prompt:
-        return jsonify({"error": "prompt is required"}), 400
-
-    # Simulate realistic diffusion timing (T4 GPU benchmarks)
-    BASE_MS = {"ddim": 900, "ddpm": 2200, "dpm": 700, "euler": 650}
-    base_ms  = BASE_MS.get(scheduler, 900)
-    sim_ms   = round(base_ms * (steps / 20) / max(0.5, conditioning_strength * 0.3 + 0.7))
-
-    # Quality estimates from literature
-    fidelity  = min(98, round(45 + guidance_scale * 4.2 + conditioning_strength * 8 + min(15, steps // 3)))
-    diversity = max(2,  round(95 - guidance_scale * 3.8 - conditioning_strength * 6))
-
-    NOISE_INFO = {
-        "ddim":  {"name": "DDIM",  "type": "Deterministic",     "note": "Fast, 20-50 steps sufficient, no randomness"},
-        "ddpm":  {"name": "DDPM",  "type": "Stochastic Markov", "note": "Original schedule, needs 500-1000 steps"},
-        "dpm":   {"name": "DPM++", "type": "Multi-step ODE",    "note": "Best quality/speed tradeoff, 15-25 steps"},
-        "euler": {"name": "Euler", "type": "Ancestral",         "note": "More creative variation, stochastic"},
-    }
-    cfg_note = (
-        "Low guidance: creative but may drift from prompt" if guidance_scale < 5 else
-        "Optimal range: strong prompt adherence with natural diversity" if guidance_scale <= 10 else
-        "High guidance: strict following, may over-saturate"
-    )
-
-    return jsonify({
-        "prompt":                prompt,
-        "steps":                 steps,
-        "guidance_scale":        guidance_scale,
-        "conditioning_strength": conditioning_strength,
-        "scheduler":             scheduler,
-        "noise_info":            NOISE_INFO.get(scheduler, {"name": scheduler, "type": "Custom", "note": ""}),
-        "cfg_note":              cfg_note,
-        "fidelity_score":        fidelity,
-        "diversity_score":       diversity,
-        "simulated_ms":          sim_ms,
-        "output_size":           "512x512",
-    })
-
-
 # ── Entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     logger.info("=" * 60)
-    logger.info("IE7615 Group 8 — CLIP+GPT-2 Caption Demo Server")
+    logger.info("IE7615 Group 8 -- CLIP+GPT-2 Caption Demo Server")
     logger.info(f"Project root : {PROJECT_ROOT}")
     logger.info(f"Device       : {DEVICE}")
     logger.info(f"Offline mode : {os.environ.get('TRANSFORMERS_OFFLINE', '0') == '1'}")
     logger.info("=" * 60)
 
-    # Load models in background thread so Flask starts immediately
-    # /api/status returns {"ready": false} until models are loaded
-    import threading, webbrowser
+    import threading
 
     def _load_bg():
         load_all_models()
-        # Open browser only after models are ready
         import webbrowser as _wb
         _wb.open("http://127.0.0.1:5000")
 
