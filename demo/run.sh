@@ -40,6 +40,10 @@ echo "[INFO] Python: $PYTHON ($(python3 --version 2>&1))"
 #     pip install flask --quiet
 # }
 
+# Fix OMP/dill tmp file issue on macOS (Warning #179)
+export TMPDIR="$HOME/.cache/tmp"
+mkdir -p "$TMPDIR"
+
 # Start server
 echo "[INFO] Starting server at http://127.0.0.1:5000"
 echo "[INFO] Press Ctrl+C to stop"

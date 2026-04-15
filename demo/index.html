@@ -361,10 +361,12 @@ tbody td:first-child{text-align:left;color:var(--t1);font-weight:700}
       <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h2M6 4h2M10 6h2M6 12h2"/><circle cx="4" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="4" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg>
       Sensitivity
     </div>
+    <!-- Analysis tab temporarily hidden
     <div class="sb-item" data-page="analysis" onclick="nav(this)">
       <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="5"/><path d="M6 3v4l2 2"/></svg>
       Analysis
     </div>
+    -->
     <!-- <div class="sb-section" style="padding-top:10px;border-top:1px solid var(--line);margin-top:6px">Text to Image</div>
     <div class="sb-item" data-page="diffusion" onclick="nav(this)">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a6 6 0 100 12A6 6 0 008 2z"/><path d="M8 5.5C8 5.5 6 7 6 8.5a2 2 0 004 0C10 7 8 5.5 8 5.5z"/></svg>
@@ -828,8 +830,8 @@ tbody td:first-child{text-align:left;color:var(--t1);font-weight:700}
         <div class="fc-body">
           This result is counter-intuitive but explainable by three compounding factors:<br><br>
           <strong>1. Rank too low for COCO scale.</strong> LoRA r=8 adds only ~2M trainable parameters on top of a 117M GPT-2. COCO has 590K captions with high lexical diversity. The adapter capacity is insufficient to absorb that variance, while Frozen + full ProjectionHead training directly optimizes the image-to-token bridge.<br><br>
-          <strong>2. LoRA checkpoint trained on Flickr30k first.</strong> The LoRA weights were initialized from a Flickr30k fine-tune, then adapted to COCO. This domain shift may have caused partial overwriting of useful Flickr representations without fully converging on COCO.<br><br>
-          <strong>3. COCO evaluation rewards lexical precision.</strong> CIDEr uses TF-IDF weighting over all 5 COCO references per image. LoRA with nucleus sampling (CIDEr 0.362) generates more diverse but less reference-aligned captions, which is penalized by CIDEr more than by ROUGE-L.
+          <!-- <strong>2. LoRA checkpoint trained on Flickr30k first.</strong> The LoRA weights were initialized from a Flickr30k fine-tune, then adapted to COCO. This domain shift may have caused partial overwriting of useful Flickr representations without fully converging on COCO.<br><br> -->
+          <strong>2. COCO evaluation rewards lexical precision.</strong> CIDEr uses TF-IDF weighting over all 5 COCO references per image. LoRA with nucleus sampling (CIDEr 0.362) generates more diverse but less reference-aligned captions, which is penalized by CIDEr more than by ROUGE-L.
         </div>
       </div>
     </div>
@@ -1231,7 +1233,7 @@ function pollStatus() {
     if (d.ready) {
       dot.className = 'sb-status-dot ready';
       lbl.textContent = 'Models Ready';
-      msg.textContent = '';
+      msg.textContent = 'V2.28 G8-Team';
       document.getElementById('datasetChip').textContent = d.dataset === 'coco_full' ? 'COCO 2017 -- 118K' : 'Flickr30k';
     } else {
       dot.className = 'sb-status-dot loading';

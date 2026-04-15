@@ -131,14 +131,17 @@ The project includes a full web-based inference dashboard running locally via Fl
 *All three models generating captions for the same image using beam search. The right panel shows caption cards with timing information.*
 
 To run it:
-
+1. Webapp (Single picture)
 ```bash
 cd demo
 bash run.sh
 # opens http://localhost:5000 automatically once models load (~30 seconds on M1)
 ```
+2. CLI (Multi pictures)
+cd demo
+Run file demo.ipynb and seclect input folder + configurations
 
-The dashboard has four pages:
+The dashboard and webapp has pages:
 
 **Live Demo** -- Upload any image and generate captions. Select model variant and decoding strategy. The preprocessing pipeline is visualized step by step (resize, crop, normalize, embed). Beam search hypotheses with log-probabilities are shown below the captions.
 
@@ -146,11 +149,8 @@ The dashboard has four pages:
 
 **Sensitivity** -- Two tabs. The Dynamic tab shows recommended parameter settings derived from the COCO 500 sweep and allows running a real-time 12-inference sweep on the current image. The Static tab shows the four sweep charts.
 
-**Analysis** -- Key findings cards and ethical considerations, updated to reflect COCO 500 results.
-
 ![Metrics evaluation panel](assets/metrics_static_table.png)
 
-*The Static Metrics tab showing the full 9-configuration evaluation table with best cells highlighted.*
 
 ---
 
